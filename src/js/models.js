@@ -6,6 +6,7 @@ class GameModel {
     this.score = 0
     this.level = 1
     this.createTetrimino = this.createTetrimino
+    this.observers = []
   }
 
   stateSnapshot () {
@@ -20,14 +21,28 @@ class GameModel {
 
   fixTetrimino () {
     // Method will break tetrimino into individual blocks and push to fixed pieces
+    const livePiece = { ...this.livePiece }
+    const blocks = livePiece.configurations[livePiece.rotationIndex]
+    blocks.forEach(block => {
+      this.fixedPieces.push(block)
+    })
+    this.livePiece = {}
+    this.notifyObservers(
+      {
+        livePiece: { ...this.livePiece },
+        fixedPieces: [...this.fixedPieces]
+      },
+      'fixTetrimino')
   }
 
   updateLivePieceCoor (x, y) {
     const a = this.livePiece.updateBlockCoordinates(x, y)
+    // this.notifyObservers()
     if (a === false) {
-      const livePiece = this.livePiece
-      this.fixedPieces.push(livePiece)
+      this.fixTetrimino()
       this.createTetrimino()
+      
+      // console.log(this.fixedPieces)
     }
   }
 
@@ -54,9 +69,20 @@ class GameModel {
      * - a new piece is added
      * - a live piece moves horizontally or vertically
      * - a live piece is rotated
-     * - a piece cannot fall any further and is cemeneted
+     * - a piece cannot fall any further and is fixed
      * - a row is made
      */
+  }
+
+  addObserver (observer) {
+    this.observers.push(observer)
+  }
+
+  notifyObservers (update = this.stateSnapshot(), label = 'Notice: ') {
+    console.log(label)
+    this.observers.forEach(observer => {
+      observer.update(update)
+    })
   }
 
   init () {
@@ -81,8 +107,14 @@ class Block {
   }
 
   blockCanMove (x, y) {
-    // TO DO
+    /**
+     * TO DO
+     * Block can't move if:
+     * - block is at the very bottom of the grid
+     * - block has a block directly below it
+     */ 
     const coordinates = this.translateCoordinates(x, y)
+    // if it is at the bottom
     if (coordinates.y >= 20) {
       return false
     }
@@ -99,7 +131,7 @@ class Tetrimino {
   constructor() {
     this.rotationIndex = 0
     this.configurations = []
-    this.referenceX = 1
+    this.referenceX = 4
     this.referenceY = 0
   }
 
@@ -112,8 +144,8 @@ class Tetrimino {
     const canMove = blocks.map(block => {
       return block.blockCanMove(this.referenceX, this.referenceY)
     })
-    console.log(canMove)
     if (canMove.indexOf(false) !== -1) {
+      // TO DO: it would be better if this logic was separated
       return false
     } else {
       this.referenceX += x

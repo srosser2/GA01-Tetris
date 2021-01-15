@@ -1,8 +1,8 @@
 class View {
-  constructor (state){
+  constructor (){
     this.state = {}
     this.root = document.querySelector('#root')
-    this.grid = this.createGrid(10, 20, 30)
+    this.grid = this.createGrid(10, 20, 20)
     this.testFn = console.log
   }
 
@@ -60,14 +60,13 @@ class View {
       display: 'grid',
       gridTemplateColumns: `repeat(${w}, ${size}px)`,
       gridTemplateRows: `repeat(${h}, ${size}px)`,
-      border: '1px solid black'
+      border: '1px solid #A8A8A8'
     }
     const grid = this.createElement('div', attributes, styles)
     return grid
   }
 
   createTetrimino (tetrimino) {
-    console.log(tetrimino.configurations[0])
     tetrimino.configurations[0].map(block => {
       const el = this.createElement(
         'div',
@@ -99,8 +98,23 @@ class View {
 
   }
 
+  update (obj){
+    for (const key in obj) {
+      this.state[key] = obj[key]
+      this.updateUI(key)
+    } 
+  }
+
   updateLivePiece (x, y) {
-    
+
+  }
+
+  updateUI (stateKey) {
+    console.log(stateKey)
+    switch (true) {
+      case stateKey === 'livePiece':
+        console.log('change to piece')
+    }
   }
 
   stateUpdate (newState) {
@@ -115,7 +129,6 @@ class View {
         case key === 'livePiece':
           if (!currentState[key]){
             this.createTetrimino(newState[key])
-
           } else {
             const blocks = Array.from(document.querySelectorAll('.live'))
             blocks.forEach((block, i) => {
@@ -135,6 +148,9 @@ class View {
               block.style.gridRowEnd = blockCoordinates.y + 1
             })
           }
+          break
+        
+        
       }
     }
     return this.state = newState
@@ -182,8 +198,9 @@ class View {
     leftContainer.appendChild(this.grid)
   }
 
-  init () {
+  init (state) {
     this.generateUI()
     this.initKeyEvents(this.testFn)
+    this.state = state
   }
 }

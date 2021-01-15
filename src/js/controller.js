@@ -35,7 +35,7 @@ class Controller {
        *  - else
        *    - move piece down 1 position
        */
-    }, 500)
+    }, 200)
   }
 
   pause () {
@@ -45,10 +45,6 @@ class Controller {
     }
   }
 
-  stop () {
-
-  }
-
   bindFunctions () {
     this.view.bindStartGame(this.play)
   }
@@ -56,6 +52,7 @@ class Controller {
   init () {
     this.model.init()
     this.view.init()
+    this.model.addObserver(this.view)
     this.bindFunctions()
   }
 }
