@@ -3,7 +3,6 @@ class View {
     this.state = {}
     this.root = document.querySelector('#root')
     this.grid = this.createGrid(10, 20, 20)
-    this.testFn = console.log
   }
 
   /**
@@ -71,6 +70,7 @@ class View {
       const el = this.createElement(
         'div',
         {
+          id: block.id,
           class: 'live block'
         },
         {
@@ -105,55 +105,43 @@ class View {
     } 
   }
 
-  updateLivePiece (x, y) {
-
+  updateCoordinates (element, updatedCoordinates) {
+    element.style.gridColumnStart = updatedCoordinates.x
+    element.style.gridColumnEnd = updatedCoordinates.x + 1
+    element.style.gridRowStart = updatedCoordinates.y
+    element.style.gridRowEnd = updatedCoordinates.y + 1
   }
 
   updateUI (stateKey) {
-    console.log(stateKey)
     switch (true) {
-      case stateKey === 'livePiece':
-        console.log('change to piece')
-    }
-  }
-
-  stateUpdate (newState) {
-    const currentState = { ...this.state }
-    /**
-     * Loop through curent state
-     * if currentState[key] !== newState[key]
-     *  - trigger UI update
-     */
-    for (const key in newState){
-      switch (true){
-        case key === 'livePiece':
-          if (!currentState[key]){
-            this.createTetrimino(newState[key])
-          } else {
-            const blocks = Array.from(document.querySelectorAll('.live'))
-            blocks.forEach((block, i) => {
-              // Overwrite coordinates using new state
-              // Live Tetrimino
-              const tetriminoModel = newState[key]
-              // The current rotation form of the tetrimino
-              const currentConfig = tetriminoModel.configurations[tetriminoModel.rotationIndex]
-              // 1 specific block
-              const currentBlock = currentConfig[i]
-              // Updated coordinates for the block
-              const blockCoordinates = currentBlock.translateCoordinates(tetriminoModel.referenceX, tetriminoModel.referenceY)
-              // Update the element style coordinates
-              block.style.gridColumnStart = blockCoordinates.x
-              block.style.gridColumnEnd = blockCoordinates.x + 1
-              block.style.gridRowStart = blockCoordinates.y
-              block.style.gridRowEnd = blockCoordinates.y + 1
-            })
-          }
-          break
-        
-        
+      // Change to live piece
+      case stateKey === 'livePiece': {
+        let liveBlocks = Array.from(document.querySelectorAll('.live'))
+        if (liveBlocks.length === 0) {
+          this.createTetrimino(this.state[stateKey])
+          liveBlocks = Array.from(document.querySelectorAll('.live'))
+        }
+        // Update the coordinates
+        liveBlocks.forEach((block, i) => {
+          const tModel = this.state[stateKey]
+          const currentConfig = tModel.configurations[tModel.rotationIndex]
+          const currentBlock = currentConfig[i]
+          const blockCoordinates = currentBlock.translateCoordinates(tModel.referenceX, tModel.referenceY)
+          this.updateCoordinates(block, blockCoordinates)
+        })
+        break
+      }
+      case stateKey === 'fixedPieces': {
+        const liveBlocks = Array.from(document.querySelectorAll('.live'))
+        liveBlocks.forEach(block => { 
+          // find the equivalent block in model
+          const blockModel = this.state[stateKey].find(bl => bl.id === block.id)
+          block.classList.remove('live')
+          block.classList.add('fixed')
+          this.updateCoordinates(block, blockModel)
+        })
       }
     }
-    return this.state = newState
   }
 
   /**
@@ -200,7 +188,6 @@ class View {
 
   init (state) {
     this.generateUI()
-    this.initKeyEvents(this.testFn)
     this.state = state
   }
 }

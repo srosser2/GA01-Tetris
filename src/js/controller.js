@@ -5,11 +5,12 @@ class Controller {
     this.isPlaying = false
     this.playInterval = null
     this.play = this.play.bind(this)
+    this.moveBlock = this.moveBlock.bind(this)
   }
 
   createTetrimino () {
     this.model.createTetrimino()
-    this.view.stateUpdate(this.model.stateSnapshot())
+    // this.view.stateUpdate(this.model.stateSnapshot())
   }
 
   play () {
@@ -19,7 +20,7 @@ class Controller {
     this.isPlaying = true
     this.createTetrimino()
     this.playInterval = setInterval(() => {
-      this.view.stateUpdate(this.model.stateSnapshot())
+      // this.view.stateUpdate(this.model.stateSnapshot())
       switch (true) {
         case true:
           this.model.updateLivePieceCoor(0, 1)
@@ -35,7 +36,7 @@ class Controller {
        *  - else
        *    - move piece down 1 position
        */
-    }, 200)
+    }, 500)
   }
 
   pause () {
@@ -45,13 +46,28 @@ class Controller {
     }
   }
 
+  moveBlock (direction) {
+    switch (direction){
+      case 'left': {
+        this.model.updateLivePieceCoor(-1, 0)
+        break
+      }
+      case 'right': {
+        this.model.updateLivePieceCoor(1, 0)
+        break
+      }
+    }
+    
+  }
+
   bindFunctions () {
     this.view.bindStartGame(this.play)
   }
 
   init () {
     this.model.init()
-    this.view.init()
+    this.view.init(this.model.stateSnapshot())
+    this.view.initKeyEvents(this.moveBlock)
     this.model.addObserver(this.view)
     this.bindFunctions()
   }

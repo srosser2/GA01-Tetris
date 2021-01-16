@@ -35,7 +35,6 @@ button:hover {
 
 .left-column {
   flex: 4;
-  /* border: 1px solid red; */
   display: flex;
   justify-content: center;
 }
@@ -50,4 +49,8 @@ button:hover {
   /* border: 1px solid #B0B0B0; */
   height: 100%;
   width: 100%;
+}
+
+.fixed {
+  background-color: lightslategray;
 }

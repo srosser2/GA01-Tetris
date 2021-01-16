@@ -19,17 +19,27 @@ class GameModel {
     }
   }
 
+  createTetrimino () {
+    const tetrimino = new LeftRightZigZag()
+    this.livePiece = tetrimino
+    this.notifyObservers({
+      livePiece: this.livePiece
+    },
+    'createTetrimino')
+  }
+
   fixTetrimino () {
     // Method will break tetrimino into individual blocks and push to fixed pieces
     const livePiece = { ...this.livePiece }
     const blocks = livePiece.configurations[livePiece.rotationIndex]
     blocks.forEach(block => {
+      const fixedCoors = block.translateCoordinates(livePiece.referenceX, livePiece.referenceY)
+      block.fixCoordinates(fixedCoors.x, fixedCoors.y)
       this.fixedPieces.push(block)
     })
-    this.livePiece = {}
+
     this.notifyObservers(
       {
-        livePiece: { ...this.livePiece },
         fixedPieces: [...this.fixedPieces]
       },
       'fixTetrimino')
@@ -37,18 +47,15 @@ class GameModel {
 
   updateLivePieceCoor (x, y) {
     const a = this.livePiece.updateBlockCoordinates(x, y)
-    // this.notifyObservers()
     if (a === false) {
       this.fixTetrimino()
       this.createTetrimino()
-      
-      // console.log(this.fixedPieces)
+    } else {
+      this.notifyObservers({
+        livePiece: this.livePiece
+      },
+      'Live Piece Coordinate Updated')
     }
-  }
-
-  createTetrimino () {
-    const tetrimino = new LeftRightZigZag()
-    this.livePiece = tetrimino
   }
 
   checkFullRow () {
@@ -63,23 +70,11 @@ class GameModel {
 
   }
 
-  updateModel () {
-    /**
-     * The model updates under the following conditions:
-     * - a new piece is added
-     * - a live piece moves horizontally or vertically
-     * - a live piece is rotated
-     * - a piece cannot fall any further and is fixed
-     * - a row is made
-     */
-  }
-
   addObserver (observer) {
     this.observers.push(observer)
   }
 
-  notifyObservers (update = this.stateSnapshot(), label = 'Notice: ') {
-    console.log(label)
+  notifyObservers (update) {
     this.observers.forEach(observer => {
       observer.update(update)
     })
@@ -95,6 +90,7 @@ class GameModel {
 
 class Block {
   constructor(x, y){
+    this.id = `bl-${Date.now() - (Math.floor(Math.random() * 10000000))}`
     this.x = x
     this.y = y
   }
@@ -104,6 +100,11 @@ class Block {
       x: this.x + x,
       y: this.y + y
     }
+  }
+
+  fixCoordinates (x, y){
+    this.x = x
+    this.y = y
   }
 
   blockCanMove (x, y) {
@@ -116,6 +117,12 @@ class Block {
     const coordinates = this.translateCoordinates(x, y)
     // if it is at the bottom
     if (coordinates.y >= 20) {
+      return false
+    }
+    if (coordinates.x <= 1){
+      return false
+    }
+    if (coordinates.x >= 10){
       return false
     }
     return true
