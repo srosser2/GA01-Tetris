@@ -1,7 +1,13 @@
 class GameModel {
   constructor(){
     this.livePiece = {}
-    this.fixedPieces = []
+    this.fixedBlocks = [
+      // {
+      //   id: 1,
+      //   x: 4,
+      //   y: 3
+      // }
+    ]
     this.queue = []
     this.score = 0
     this.level = 1
@@ -12,7 +18,7 @@ class GameModel {
   stateSnapshot () {
     return {
       livePiece: this.livePiece,
-      fixedPieces: this.fixedPieces,
+      fixedBlocks: this.fixedBlocks,
       queue: this.queue,
       score: this.score,
       level: this.level
@@ -20,12 +26,74 @@ class GameModel {
   }
 
   createTetrimino () {
-    const tetrimino = new LeftRightZigZag()
+    const tetrimino = new Square()
+    // const tetrimino = new LeftRightZigZag()
     this.livePiece = tetrimino
-    this.notifyObservers({
-      livePiece: this.livePiece
-    },
-    'createTetrimino')
+    this.notifyObservers({ livePiece: this.livePiece })
+  }
+
+  updateLivePieceCoor (x, y) {
+    // Get the live piece
+    const tet = this.livePiece
+    // Map over each block in the tetrimino, returning an array of booleans to check if each block is valid
+    const validBlocks = tet.configurations[tet.rotationIndex].map(block => {
+      const blockCoors = block.translateCoordinates(tet.referenceX + x, tet.referenceY + y)
+      return this.validateMove(blockCoors.x, blockCoors.y)
+    })
+
+    // If there is a false value, return
+    const valid = !(validBlocks.some(block => block === false))
+    if (!valid) {
+      return
+    }
+    // Else, update the block coordinates of the piece
+    this.livePiece.updateBlockCoordinates(x, y)
+    this.notifyObservers({ livePiece: this.livePiece })
+  }
+
+  /**
+   * 
+   * @param {number} x 
+   * @param {number} y 
+   * Method should be called on each individual block,
+   * if any block returns false, whole tetrimino should
+   * either be denied movement or it should freeze
+   */
+  validateMove (x, y) {
+    let valid = true
+    // Piece cannot move less than the left wall
+    if (x <= 0) {
+      valid = false
+    }
+    // piece cannot move above the right wall
+    if (x >= WIDTH + 1) {
+      valid = false
+    }
+    // piece cannot move lower than the bottom row
+    if (y >= HEIGHT + 1) {
+      valid = false
+    }
+
+    this.fixedBlocks.forEach(block => {
+      if (block.x === x && block.y === y){
+        console.log(`Block x (${block.x}) === x (${x}) && Block y (${block.y}) === x (${y})`)
+        valid = false
+      }
+    })
+
+    return valid
+  }
+
+  pieceShouldFix (x, y) {
+    // should return a boolean - to be called at the end of each interval in the controller
+    let shouldFix = false
+    shouldFix = y >= HEIGHT ? true : false
+    if (!shouldFix) {
+      shouldFix = this.fixedBlocks.some(block => {
+        return (block.x === x && block.y === y)
+      })
+    }
+    return shouldFix
   }
 
   fixTetrimino () {
@@ -35,27 +103,9 @@ class GameModel {
     blocks.forEach(block => {
       const fixedCoors = block.translateCoordinates(livePiece.referenceX, livePiece.referenceY)
       block.fixCoordinates(fixedCoors.x, fixedCoors.y)
-      this.fixedPieces.push(block)
+      this.fixedBlocks.push(block)
     })
-
-    this.notifyObservers(
-      {
-        fixedPieces: [...this.fixedPieces]
-      },
-      'fixTetrimino')
-  }
-
-  updateLivePieceCoor (x, y) {
-    const a = this.livePiece.updateBlockCoordinates(x, y)
-    if (a === false) {
-      this.fixTetrimino()
-      this.createTetrimino()
-    } else {
-      this.notifyObservers({
-        livePiece: this.livePiece
-      },
-      'Live Piece Coordinate Updated')
-    }
+    this.notifyObservers({ fixedBlocks: [...this.fixedBlocks] })
   }
 
   checkFullRow () {
@@ -70,10 +120,27 @@ class GameModel {
 
   }
 
+  checkGameOver () {
+    return false
+  }
+
+  /**
+   * 
+   * @param {class} observer 
+   * Method to add classes as observers:
+   * - observers are notified when model changes
+   */
   addObserver (observer) {
     this.observers.push(observer)
   }
 
+  /**
+   * 
+   * @param {Object} update 
+   * Method to run through any observers with updates to state
+   * Observers have a corresponding update method, which
+   * reacts to changes in state
+   */
   notifyObservers (update) {
     this.observers.forEach(observer => {
       observer.update(update)
@@ -95,6 +162,14 @@ class Block {
     this.y = y
   }
 
+  /**
+   * 
+   * @param {number} x 
+   * @param {number} y 
+   * Coordinates for live peices are only 'translated'
+   * The starting positions are added to the Tetrimino's reference points
+   * Reference points are updated
+   */
   translateCoordinates (x, y) {
     return {
       x: this.x + x,
@@ -105,27 +180,6 @@ class Block {
   fixCoordinates (x, y){
     this.x = x
     this.y = y
-  }
-
-  blockCanMove (x, y) {
-    /**
-     * TO DO
-     * Block can't move if:
-     * - block is at the very bottom of the grid
-     * - block has a block directly below it
-     */ 
-    const coordinates = this.translateCoordinates(x, y)
-    // if it is at the bottom
-    if (coordinates.y >= 20) {
-      return false
-    }
-    if (coordinates.x <= 1){
-      return false
-    }
-    if (coordinates.x >= 10){
-      return false
-    }
-    return true
   }
 
 }
@@ -147,17 +201,8 @@ class Tetrimino {
   }
 
   updateBlockCoordinates (x, y) {
-    const blocks = this.configurations[this.rotationIndex]
-    const canMove = blocks.map(block => {
-      return block.blockCanMove(this.referenceX, this.referenceY)
-    })
-    if (canMove.indexOf(false) !== -1) {
-      // TO DO: it would be better if this logic was separated
-      return false
-    } else {
-      this.referenceX += x
-      this.referenceY += y
-    }
+    this.referenceX += x
+    this.referenceY += y
   }
 }
 

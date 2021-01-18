@@ -2,7 +2,7 @@ class View {
   constructor (){
     this.state = {}
     this.root = document.querySelector('#root')
-    this.grid = this.createGrid(10, 20, 20)
+    this.grid = this.createGrid(WIDTH, HEIGHT, 20)
   }
 
   /**
@@ -131,7 +131,7 @@ class View {
         })
         break
       }
-      case stateKey === 'fixedPieces': {
+      case stateKey === 'fixedBlocks': {
         const liveBlocks = Array.from(document.querySelectorAll('.live'))
         liveBlocks.forEach(block => { 
           // find the equivalent block in model
@@ -171,18 +171,25 @@ class View {
     })
   }
 
-  bindStartGame (fn) {
+  startGameHandler (fn) {
     const startBtn = document.querySelector('#start')
     startBtn.addEventListener('click', fn)
+  }
+
+  pauseGameHandler (fn) {
+    const pauseBtn = document.querySelector('#pause')
+    pauseBtn.addEventListener('click', fn)
   }
 
   generateUI () {
     const leftContainer = this.createLeftContainer()
     const sideBar = this.createSideBar()
     const startButton = this.createButton('Start', 'start')
+    // const pauseButton = this.createButton('Pause', 'pause')
     this.root.appendChild(leftContainer)
     this.root.appendChild(sideBar)
     sideBar.appendChild(startButton)
+    // sideBar.appendChild(pauseButton)
     leftContainer.appendChild(this.grid)
   }
 
