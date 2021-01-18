@@ -66,7 +66,7 @@ class View {
   }
 
   createTetrimino (tetrimino) {
-    tetrimino.configurations[0].map(block => {
+    tetrimino.blocks.map(block => {
       const el = this.createElement(
         'div',
         {
@@ -124,7 +124,7 @@ class View {
         // Update the coordinates
         liveBlocks.forEach((block, i) => {
           const tModel = this.state[stateKey]
-          const currentConfig = tModel.configurations[tModel.rotationIndex]
+          const currentConfig = tModel.blocks
           const currentBlock = currentConfig[i]
           const blockCoordinates = currentBlock.translateCoordinates(tModel.referenceX, tModel.referenceY)
           this.updateCoordinates(block, blockCoordinates)
@@ -140,6 +140,29 @@ class View {
           block.classList.add('fixed')
           this.updateCoordinates(block, blockModel)
         })
+
+        // Remove blocks from DOM
+        // 1. get an array of ids from the model
+        const blockIDs = this.state[stateKey].map(block => {
+          return block.id
+        })
+        // 2. get an array of ids from the dom
+        const blocksDom = Array.from(document.querySelectorAll('.fixed'))
+        const b = blocksDom.map(block => {
+          return block.id
+        })
+        // 3. get a list of ids that exist only on the dom, not in the model
+        const toRemove = b.filter(block => blockIDs.indexOf(block) === -1)
+        // 4. add css for row to remove
+        toRemove.forEach(block => {
+          const bl = document.getElementById(block)
+          bl.classList.add('flash')  
+        })
+        // 5. remove elements 
+        setTimeout(() => {
+          const r = document.querySelectorAll('.flash')
+          r.forEach(el => el.remove())
+        }, 200)
       }
     }
   }
@@ -167,6 +190,9 @@ class View {
           break
         case key === 'ArrowRight':
           fn('right')
+          break
+        case key === 'ArrowUp':
+          fn('up')
       }
     })
   }

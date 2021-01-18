@@ -26,27 +26,15 @@ class GameModel {
   }
 
   createTetrimino () {
-    const tetrimino = new Square()
-    // const tetrimino = new LeftRightZigZag()
+    const arr = [new I(), new J(), new L(), new O(), new S(), new T(), new Z()]
+    // const tetrimino = new S()
+    const tetrimino = arr[Math.floor(Math.random() * arr.length)]
     this.livePiece = tetrimino
     this.notifyObservers({ livePiece: this.livePiece })
   }
 
   updateLivePieceCoor (x, y) {
     // Get the live piece
-    const tet = this.livePiece
-    // Map over each block in the tetrimino, returning an array of booleans to check if each block is valid
-    const validBlocks = tet.configurations[tet.rotationIndex].map(block => {
-      const blockCoors = block.translateCoordinates(tet.referenceX + x, tet.referenceY + y)
-      return this.validateMove(blockCoors.x, blockCoors.y)
-    })
-
-    // If there is a false value, return
-    const valid = !(validBlocks.some(block => block === false))
-    if (!valid) {
-      return
-    }
-    // Else, update the block coordinates of the piece
     this.livePiece.updateBlockCoordinates(x, y)
     this.notifyObservers({ livePiece: this.livePiece })
   }
@@ -61,13 +49,16 @@ class GameModel {
    */
   validateMove (x, y) {
     let valid = true
+    // console.log(`x: ${x}, y: ${y}`)
     // Piece cannot move less than the left wall
     if (x <= 0) {
       valid = false
+      // console.log('x is less that or equal to 0')
     }
     // piece cannot move above the right wall
     if (x >= WIDTH + 1) {
       valid = false
+      // console.log('x is greater than or equal to width')
     }
     // piece cannot move lower than the bottom row
     if (y >= HEIGHT + 1) {
@@ -76,11 +67,19 @@ class GameModel {
 
     this.fixedBlocks.forEach(block => {
       if (block.x === x && block.y === y){
-        console.log(`Block x (${block.x}) === x (${x}) && Block y (${block.y}) === x (${y})`)
+        // console.log(`Block x (${block.x}) === x (${x}) && Block y (${block.y}) === x (${y})`)
         valid = false
       }
     })
 
+    return valid
+  }
+
+  validateMultipleBlocks (blockArray) {
+    const validBlocks = blockArray.map(block => {
+      return this.validateMove(block.x, block.y)
+    })
+    const valid = validBlocks.every(block => (block === true))
     return valid
   }
 
@@ -99,21 +98,71 @@ class GameModel {
   fixTetrimino () {
     // Method will break tetrimino into individual blocks and push to fixed pieces
     const livePiece = { ...this.livePiece }
-    const blocks = livePiece.configurations[livePiece.rotationIndex]
+    const blocks = livePiece.blocks
     blocks.forEach(block => {
       const fixedCoors = block.translateCoordinates(livePiece.referenceX, livePiece.referenceY)
-      block.fixCoordinates(fixedCoors.x, fixedCoors.y)
+      block.setCoordinates(fixedCoors.x, fixedCoors.y)
       this.fixedBlocks.push(block)
     })
     this.notifyObservers({ fixedBlocks: [...this.fixedBlocks] })
   }
 
-  checkFullRow () {
-
+  checkFullRow (rowNum) {
+    /**
+     * if 10 blocks have the same y value, then return true
+     */
+    let counter = 0
+    this.fixedBlocks.forEach(block => {
+      if (block.y === rowNum) {
+        counter ++
+      }
+    })
+    if (counter === WIDTH) {
+      return rowNum
+    }
   }
 
-  clearRow () {
+  checkAllRows () {
+    const clearRows = []
+    for (let i = 0; i <= HEIGHT; i++){
+      if (this.checkFullRow(i)){
+        clearRows.push(this.checkFullRow(i))
+      }
+    }
+    return clearRows
+  }
 
+  clearRows (rowNums) {
+    rowNums.forEach(row => {
+      const blocks = this.fixedBlocks.filter(block => block.y === row)
+      const mapped = this.fixedBlocks.map(block => {
+        /**
+         * If block are below current row number, do nothing
+         * If blocks are in the current row nuimber, remove
+         * If blocks are above the current row number, add 1 from y
+         * return the array
+         */
+        if (block.y > row){
+          return block
+        }
+        if (block.y === row) {
+          return null
+        }
+        if (block.y < row){
+          const updatedBlock = { ...block }
+          updatedBlock.y += 1
+          return updatedBlock
+        }
+      })
+      const filtered = mapped.filter(block => block !== null)
+      this.fixedBlocks = filtered
+
+    })
+    this.notifyObservers(
+      {
+        fixedBlocks: this.fixedBlocks
+      }
+    )
   }
 
   updateScore () {
@@ -156,8 +205,8 @@ class GameModel {
  **************/
 
 class Block {
-  constructor(x, y){
-    this.id = `bl-${Date.now() - (Math.floor(Math.random() * 10000000))}`
+  constructor(x, y, id){
+    this.id = id
     this.x = x
     this.y = y
   }
@@ -177,7 +226,7 @@ class Block {
     }
   }
 
-  fixCoordinates (x, y){
+  setCoordinates (x, y){
     this.x = x
     this.y = y
   }
@@ -191,12 +240,41 @@ class Block {
 class Tetrimino {
   constructor() {
     this.rotationIndex = 0
+    this.blocks = []
     this.configurations = []
     this.referenceX = 4
     this.referenceY = 0
   }
 
+  generateID () {
+    return `bl-${Date.now() - (Math.floor(Math.random() * 10000000))}`
+  }
+
   rotate () {
+    // Cycle through configurations
+    if (this.rotationIndex < this.configurations.length - 1) {
+      this.rotationIndex += 1
+    } else {
+      this.rotationIndex = 0
+    }
+    // Update the each block to the new position
+    this.blocks.forEach((block, i) => {
+      const coordinates = this.configurations[this.rotationIndex]
+      block.setCoordinates(coordinates[i].x, coordinates[i].y)
+    })
+
+  }
+
+  getTranslatedCoordinates (x, y){
+    return this.blocks.map(block => {
+      return {
+        x: block.x + this.referenceX + x,
+        y: block.y + this.referenceY + y
+      }
+    })
+  }
+
+  getRotatedCooridnates () {
     
   }
 
@@ -206,30 +284,264 @@ class Tetrimino {
   }
 }
 
-class Square extends Tetrimino {
+class I extends Tetrimino {
   constructor(){
     super()
+    this.referenceY = 1
+    this.blocks = [
+      new Block(0, 1, this.generateID()),
+      new Block(1, 1, this.generateID()),
+      new Block(2, 1, this.generateID()),
+      new Block(3, 1, this.generateID())
+    ]
     this.configurations = [
       [
-        new Block(0, 1),
-        new Block(1, 1),
-        new Block(0, 2),
-        new Block(1, 2)
+        { x: 0, y: 2 },
+        { x: 1, y: 2 },
+        { x: 2, y: 2 },
+        { x: 3, y: 2 }
+      ],
+      [
+        { x: 2, y: 1 },
+        { x: 2, y: 2 },
+        { x: 2, y: 3 },
+        { x: 2, y: 4 }
+      ],
+      [
+        { x: 0, y: 3 },
+        { x: 1, y: 3 },
+        { x: 2, y: 3 },
+        { x: 3, y: 3 }
+      ],
+      [
+        { x: 1, y: 1 },
+        { x: 1, y: 2 },
+        { x: 1, y: 3 },
+        { x: 1, y: 4 }
       ]
     ]
   }
 }
 
-class LeftRightZigZag extends Tetrimino {
+class J extends Tetrimino {
   constructor(){
     super()
+
+    this.blocks = [
+      new Block(0, 1, this.generateID()),
+      new Block(0, 2, this.generateID()),
+      new Block(1, 2, this.generateID()),
+      new Block(2, 2, this.generateID())
+    ]
+
     this.configurations = [
       [
-        new Block(0, 2),
-        new Block(1, 2),
-        new Block(1, 1),
-        new Block(2, 1)
+        { x: 0, y: 1 },
+        { x: 0, y: 2 },
+        { x: 1, y: 2 },
+        { x: 2, y: 2 }
+      ],
+      [
+        { x: 2, y: 1 },
+        { x: 1, y: 1 },
+        { x: 1, y: 2 },
+        { x: 1, y: 3 }
+      ], 
+      [
+        { x: 2, y: 3 },
+        { x: 2, y: 2 },
+        { x: 1, y: 2 },
+        { x: 0, y: 2 }
+      ],
+      [
+        { x: 0, y: 3 },
+        { x: 1, y: 3 },
+        { x: 1, y: 2 },
+        { x: 1, y: 1 }
       ]
     ]
   }
 }
+
+class L extends Tetrimino {
+  constructor(){
+    super()
+
+    this.blocks = [
+      new Block(0, 2, this.generateID()),
+      new Block(1, 2, this.generateID()),
+      new Block(2, 2, this.generateID()),
+      new Block(2, 1, this.generateID())
+    ]
+
+    this.configurations = [
+      [
+        { x: 0, y: 2 },
+        { x: 1, y: 2 },
+        { x: 2, y: 2 },
+        { x: 2, y: 1 }
+      ],
+      [
+        { x: 1, y: 1 },
+        { x: 1, y: 2 },
+        { x: 1, y: 3 },
+        { x: 2, y: 3 }
+      ], 
+      [
+        { x: 2, y: 2 },
+        { x: 1, y: 2 },
+        { x: 0, y: 2 },
+        { x: 0, y: 3 }
+      ],
+      [
+        { x: 1, y: 3 },
+        { x: 1, y: 2 },
+        { x: 1, y: 1 },
+        { x: 0, y: 1 }
+      ]
+    ]
+  }
+}
+
+class O extends Tetrimino {
+  constructor(){
+    super()
+    this.blocks = [
+      new Block(0, 1, this.generateID()),
+      new Block(1, 1, this.generateID()),
+      new Block(0, 2, this.generateID()),
+      new Block(1, 2, this.generateID())
+    ]
+    this.configurations = [
+      [
+        { x: 0, y: 1 },
+        { x: 1, y: 1 },
+        { x: 0, y: 2 },
+        { x: 1, y: 2 }
+      ]
+    ]
+  }
+}
+
+class S extends Tetrimino {
+  constructor(){
+    super()
+
+    this.blocks = [
+      new Block(0, 2, this.generateID()),
+      new Block(1, 2, this.generateID()),
+      new Block(1, 1, this.generateID()),
+      new Block(2, 1, this.generateID())
+    ]
+    this.configurations = [
+      [
+        { x: 0, y: 2 },
+        { x: 1, y: 2 },
+        { x: 1, y: 1 },
+        { x: 2, y: 1 }
+      ],
+      [ 
+        { x: 1, y: 1 },
+        { x: 1, y: 2 },
+        { x: 2, y: 2 },
+        { x: 2, y: 3 }
+      ],
+      [ 
+        { x: 2, y: 2 },
+        { x: 1, y: 2 },
+        { x: 1, y: 3 },
+        { x: 0, y: 3 }
+      ],
+      [ 
+        { x: 1, y: 3 },
+        { x: 1, y: 2 },
+        { x: 0, y: 2 },
+        { x: 0, y: 1 }
+      ]
+    ]
+  }
+}
+
+class T extends Tetrimino {
+  constructor(){
+    super()
+
+    this.blocks = [
+      new Block(0, 1, this.generateID()),
+      new Block(1, 1, this.generateID()),
+      new Block(2, 1, this.generateID()),
+      new Block(1, 2, this.generateID())
+    ]
+
+    this.configurations = [
+      [
+        { x: 0, y: 1 },
+        { x: 1, y: 1 },
+        { x: 2, y: 1 },
+        { x: 1, y: 2 }
+      ],
+      [
+        { x: 2, y: 1 },
+        { x: 2, y: 2 },
+        { x: 2, y: 3 },
+        { x: 1, y: 2 }
+      ], 
+      [
+        { x: 0, y: 3 },
+        { x: 1, y: 3 },
+        { x: 2, y: 3 },
+        { x: 1, y: 2 }
+      ],
+      [
+        { x: 0, y: 1 },
+        { x: 0, y: 2 },
+        { x: 0, y: 3 },
+        { x: 1, y: 2 }
+      ]
+    ]
+  }
+}
+
+class Z extends Tetrimino {
+  constructor(){
+    super()
+
+    this.blocks = [
+      new Block(0, 1, this.generateID()),
+      new Block(1, 1, this.generateID()),
+      new Block(1, 2, this.generateID()),
+      new Block(2, 2, this.generateID())
+    ]
+    this.configurations = [
+      [
+        { x: 0, y: 1 },
+        { x: 1, y: 1 },
+        { x: 1, y: 2 },
+        { x: 2, y: 2 }
+      ],
+      [ 
+        { x: 2, y: 1 },
+        { x: 2, y: 2 },
+        { x: 1, y: 2 },
+        { x: 1, y: 3 }
+      ],
+      [ 
+        { x: 2, y: 3 },
+        { x: 1, y: 3 },
+        { x: 1, y: 2 },
+        { x: 0, y: 2 }
+      ],
+      [ 
+        { x: 0, y: 3 },
+        { x: 0, y: 2 },
+        { x: 1, y: 2 },
+        { x: 1, y: 1 }
+      ]
+    ]
+  }
+}
+
+
+
+
+

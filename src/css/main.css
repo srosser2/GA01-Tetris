@@ -56,3 +56,8 @@ button:hover {
 .fixed {
   background-color: lightslategray;
 }
+
+.flash {
+  background-color: rgb(164, 187, 211);
+  transition: 1s;
+}

@@ -10,35 +10,31 @@ class Controller {
     this.dropSpeed = 200
   }
 
-  createTetrimino () {
-    this.model.createTetrimino()
-  }
-
   play () {
     if (this.isPlaying === true){
       return
     }
     this.isPlaying = true
-    this.createTetrimino()
+    this.model.createTetrimino()
+
     this.playInterval = setInterval(() => {
 
-      const liveBlocks = this.model.livePiece.configurations[this.model.livePiece.rotationIndex]
-      // Return and array of objects in which the y position is updated by 1
-      const proposedCoordinates = liveBlocks.map(block => {
-        const x = block.x + this.model.livePiece.referenceX
-        const y = block.y + this.model.livePiece.referenceY + 1
-        return { x, y }
-      })
-
+      const proposedCoordinates = this.model.livePiece.getTranslatedCoordinates(0, 1)
       // Return an array of true or false values if the piece
-      const validateBlocks = proposedCoordinates.map(block => {
-        return this.model.validateMove(block.x, block.y)
-      })
 
-      const valid = validateBlocks.every(block => (block === true))
+      const valid = this.model.validateMultipleBlocks(proposedCoordinates)
+
+      if (valid) {
+        this.model.updateLivePieceCoor(0, 1)
+        return 
+      }
 
       if (!valid) {
         this.model.fixTetrimino()
+        const fullRows = this.model.checkAllRows()
+        if (fullRows.length > 0) {
+          this.model.clearRows(fullRows)
+        }
         this.model.createTetrimino()
       }
 
@@ -73,7 +69,6 @@ class Controller {
       //   return
       // }
 
-      this.model.updateLivePieceCoor(0, 1)
       return
 
     }, this.dropSpeed)
@@ -86,13 +81,23 @@ class Controller {
   moveBlock (direction) {
     switch (direction){
       case 'left': {
-        // const coors = this.model.
-        this.model.validateMove()
-        this.model.updateLivePieceCoor(-1, 0)
+        const proposed = this.model.livePiece.getTranslatedCoordinates(-1, 0)
+        const valid = this.model.validateMultipleBlocks(proposed)
+        if (valid) {
+          this.model.updateLivePieceCoor(-1, 0)
+        }
         break
       }
       case 'right': {
-        this.model.updateLivePieceCoor(1, 0)
+        const proposed = this.model.livePiece.getTranslatedCoordinates(1, 0)
+        const valid = this.model.validateMultipleBlocks(proposed)
+        if (valid) {
+          this.model.updateLivePieceCoor(1, 0)
+        }
+        break
+      }
+      case 'up': {
+        this.model.livePiece.rotate()
         break
       }
     }
