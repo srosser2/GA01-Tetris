@@ -71,7 +71,7 @@ class View {
         'div',
         {
           id: block.id,
-          class: 'live block'
+          class: `live block ${tetrimino.cssClass}`
         },
         {
           gridColumnStart: block.x + tetrimino.referenceX,
@@ -98,7 +98,13 @@ class View {
 
   }
 
-  createScoreField () {
+  createStatsDisplay () {
+    const statsContainer = this.createElement(
+      'section',
+      {
+        id: 'stats-container'
+      }
+    )
     const scoreField = this.createElement(
       'div',
       {
@@ -106,7 +112,28 @@ class View {
       }
     )
     scoreField.innerHTML = 0
-    return scoreField
+
+    const level = this.createElement(
+      'div',
+      {
+        id: 'level'
+      }
+    )
+    level.innerHTML = 0
+
+    const lines = this.createElement(
+      'div',
+      {
+        id: 'lines'
+      }
+    )
+    lines.innerHTML = 0
+
+    statsContainer.appendChild(scoreField)
+    statsContainer.appendChild(level)
+    statsContainer.appendChild(lines)
+
+    return statsContainer
   }
 
   update (obj){
@@ -177,6 +204,16 @@ class View {
         scoreField.innerHTML = this.state[stateKey]
         break
       }
+      case stateKey === 'numberOfLines': {
+        const linesField = document.getElementById('lines')
+        linesField.innerHTML = this.state[stateKey]
+        break
+      }
+      case stateKey === 'level': {
+        const levelField = document.getElementById('level')
+        levelField.innerHTML = this.state[stateKey]
+        break
+      }
     }
   }
 
@@ -190,7 +227,7 @@ class View {
     parentElement.append(element)
   }
 
-  initKeyEvents (fn) {
+  initKeyDownEvents (fn) {
     document.addEventListener('keydown', e => {
       const key = e.code
 
@@ -210,6 +247,15 @@ class View {
     })
   }
 
+  initKeyUpEvents (fn) {
+    document.addEventListener('keyup', e => {
+      const key = e.code
+      if (key === 'ArrowDown') {
+        fn('down')
+      }
+    })
+  }
+
   startGameHandler (fn) {
     const startBtn = document.querySelector('#start')
     startBtn.addEventListener('click', fn)
@@ -225,11 +271,11 @@ class View {
     const sideBar = this.createSideBar()
     const startButton = this.createButton('Start', 'start')
     // const pauseButton = this.createButton('Pause', 'pause')
-    const scoreField = this.createScoreField()
+    const statsContainer = this.createStatsDisplay()
     this.root.appendChild(leftContainer)
     this.root.appendChild(sideBar)
     sideBar.appendChild(startButton)
-    sideBar.appendChild(scoreField)
+    sideBar.appendChild(statsContainer)
     // sideBar.appendChild(pauseButton)
     leftContainer.appendChild(this.grid)
   }

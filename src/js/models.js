@@ -10,7 +10,8 @@ class GameModel {
     ]
     this.queue = []
     this.score = 0
-    this.level = 1
+    this.level = 0
+    this.numberOfLines = 0
     this.createTetrimino = this.createTetrimino
     this.observers = []
   }
@@ -37,6 +38,13 @@ class GameModel {
     // Get the live piece
     this.livePiece.updateBlockCoordinates(x, y)
     this.notifyObservers({ livePiece: this.livePiece })
+  }
+
+  rotateLivePiece () {
+    this.livePiece.rotate()
+    this.notifyObservers({
+      livePiece: this.livePiece
+    })
   }
 
   /**
@@ -80,14 +88,6 @@ class GameModel {
     return valid
   }
 
-  // validateRotation(){
-  //   const rotatedBlockCoors = this.livePiece.getRotatedCooridnates()
-  //   const validBlocks = rotatedBlockCoors.map(block => {
-  //     return this.validateMove(block.x, block.y)
-  //   })
-  //   const valid = 
-  // }
-
   fixTetrimino () {
     // Method will break tetrimino into individual blocks and push to fixed pieces
     const livePiece = { ...this.livePiece }
@@ -127,7 +127,9 @@ class GameModel {
 
   clearRows (rowNums) {
     // Update Score
-    this.score = this.score + (100 * rowNums.length)
+    this.updateScore(rowNums.length)
+    this.updateNumberOfLines(rowNums.length)
+    this.updateLevel()
 
     // Remove rows from model
     rowNums.forEach(row => {
@@ -153,22 +155,51 @@ class GameModel {
       
       const filtered = mapped.filter(block => block !== null)
       this.fixedBlocks = filtered
-
     })
+
     this.notifyObservers({ 
       fixedBlocks: this.fixedBlocks,
-      score: this.score
+      score: this.score,
+      numberOfLines: this.numberOfLines,
+      level: this.level
     })
   }
 
-  updateScore () {
-
+  updateScore (numberOfLines) {
+    let score
+    switch (true) {
+      case numberOfLines === 1: {
+        score = 40 * (this.level + 1)
+        break
+      }
+      case numberOfLines === 2: {
+        score = 100 * (this.level + 1)
+        break
+      }
+      case numberOfLines === 3: {
+        score = 300 * (this.level + 1)
+        break
+      }
+      case numberOfLines === 4: {
+        score = 1200 * (this.level + 1)
+      }
+    }
+    this.score = this.score + score
   }
 
+  updateNumberOfLines (numberOfLines) {
+    this.numberOfLines += numberOfLines
+  }
+
+  updateLevel () {
+    const level = Math.floor(this.numberOfLines / 10)
+    console.log(level)
+    this.level = level
+  }
+
+
   checkGameOver () {
-    // if(this.)
     const isOver = this.fixedBlocks.some(block => block.y < 2 && block.x === 4)
-    // console.log('isOver: ', isOver)
     return isOver
   }
 
@@ -330,6 +361,7 @@ class I extends Tetrimino {
         { x: 1, y: 4 }
       ]
     ]
+    this.cssClass = 'i-block'
   }
 }
 
@@ -370,6 +402,7 @@ class J extends Tetrimino {
         { x: 1, y: 1 }
       ]
     ]
+    this.cssClass = 'j-block'
   }
 }
 
@@ -410,6 +443,7 @@ class L extends Tetrimino {
         { x: 0, y: 1 }
       ]
     ]
+    this.cssClass = 'l-block'
   }
 }
 
@@ -430,6 +464,7 @@ class O extends Tetrimino {
         { x: 1, y: 2 }
       ]
     ]
+    this.cssClass = 'o-block'
   }
 }
 
@@ -469,6 +504,7 @@ class S extends Tetrimino {
         { x: 0, y: 1 }
       ]
     ]
+    this.cssClass = 's-block'
   }
 }
 
@@ -509,6 +545,7 @@ class T extends Tetrimino {
         { x: 1, y: 2 }
       ]
     ]
+    this.cssClass = 't-block'
   }
 }
 
@@ -548,6 +585,7 @@ class Z extends Tetrimino {
         { x: 1, y: 1 }
       ]
     ]
+    this.cssClass = 'z-block'
   }
 }
 

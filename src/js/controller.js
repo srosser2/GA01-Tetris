@@ -3,35 +3,36 @@ class Controller {
     this.model = model
     this.view = view
     this.isPlaying = false
-    this.playInterval = null
+    this.playTimeout = null
     this.play = this.play.bind(this)
     this.pause = this.pause.bind(this)
     this.moveBlock = this.moveBlock.bind(this)
-    this.dropSpeed = 200
+    this.resetDropSpeed = this.resetDropSpeed.bind(this)
+    this.dropSpeed = 1000
+    this.softDropSpeed = 50
+    this.softDrop = false
   }
 
-  play () {
-    if (this.isPlaying === true){
-      return
-    }
-    this.isPlaying = true
-    this.model.createTetrimino()
-
-    this.playInterval = setInterval(() => {
+  play2 (speed) {
+    this.playTimeout = setTimeout(() => {
       if (this.model.checkGameOver()){
         clearInterval(this.playInterval)
         alert('Game Over! You scored ' + this.model.score + ' points' )
         return
       } 
+      let sp = this.dropSpeed
+
+      if (this.softDrop){
+        sp = this.softDropSpeed
+      }
 
       const proposedCoordinates = this.model.livePiece.getTranslatedCoordinates(0, 1)
       // Return an array of true or false values if the piece
-
       const valid = this.model.validateMultipleBlocks(proposedCoordinates)
 
       if (valid) {
         this.model.updateLivePieceCoor(0, 1)
-        return 
+        return this.play2(sp)
       }
 
       if (!valid) {
@@ -43,35 +44,19 @@ class Controller {
         this.model.createTetrimino()
       }
 
-      /**
-      * if game is over:
-      *   clear interval
-      *   return
-      * if piece should fix:
-      *   model.fixBlocks
-      *   model.createTetrimino
-      *   check for full lines:
-      *     if yes:
-      *       remove lines
-      *       update score
-      * if none of the above:
-      *   model.updateLivePieceCoors
-      * 
-      */
+      return this.play2(sp)
 
-      // if (this.model.pieceShouldFix()) {
-      //   this.model.fixBlocks()
-      //   this.model.createTetrimino
-      //   if (this.model.checkFullLines()) {
-      //     // this.model.removeLines()
-      //     // this.model.updateScore()
-      //   }
-      //   return
-      // }
+    }, speed)
+  }
 
+  play () {
+    if (this.isPlaying === true){
       return
+    }
+    this.isPlaying = true
+    this.model.createTetrimino()
+    this.play2(this.dropSpeed)
 
-    }, this.dropSpeed)
   }
 
   pause () {
@@ -99,12 +84,23 @@ class Controller {
       case 'up': {
         const valid = this.model.validateMultipleBlocks(this.model.livePiece.getRotatedCoordinates())
         if (valid) {
-          this.model.livePiece.rotate()
+          this.model.rotateLivePiece()
         }
         break
       }
+      case 'down': {
+        clearTimeout(this.playTimeout)
+        this.softDrop = true
+        this.play2(this.softDropSpeed)
+      }
     }
     
+  }
+
+  resetDropSpeed(dir) {
+    if (dir === 'down'){
+      this.softDrop = false
+    }
   }
 
   bindFunctions () {
@@ -115,7 +111,8 @@ class Controller {
   init () {
 
     this.view.init(this.model.stateSnapshot())
-    this.view.initKeyEvents(this.moveBlock)
+    this.view.initKeyDownEvents(this.moveBlock)
+    this.view.initKeyUpEvents(this.resetDropSpeed)
     this.model.addObserver(this.view)
     this.bindFunctions()
   }

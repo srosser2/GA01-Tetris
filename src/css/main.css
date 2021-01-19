@@ -43,14 +43,13 @@ button:hover {
 
 .right-column {
   flex: 2;
-  /* border: 1px solid #eceece; */
 }
 
 .block {
   background-color:	#F0F0F0;
-  /* border: 1px solid #B0B0B0; */
   height: 100%;
   width: 100%;
+  border-radius: 100%;
 }
 
 .fixed {
@@ -61,3 +60,34 @@ button:hover {
   background-color: rgb(164, 187, 211);
   transition: 1s;
 }
+
+/* Tetrimino Styles */
+
+.i-block {
+  background-color: #f94144;
+}
+
+.j-block {
+  background-color: #f3722c;
+}
+
+.l-block {
+  background-color: #f8961e;
+}
+
+.o-block {
+  background-color: #f9c74f;
+}
+
+.s-block {
+  background-color: #90be6d;
+}
+
+.t-block {
+  background-color: #43aa8b;
+}
+
+.z-block {
+  background-color: #577590;
+}
+/* o s t z */
