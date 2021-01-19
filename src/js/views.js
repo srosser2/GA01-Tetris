@@ -2,7 +2,7 @@ class View {
   constructor (){
     this.state = {}
     this.root = document.querySelector('#root')
-    this.grid = this.createGrid(WIDTH, HEIGHT, 20)
+    this.grid = this.createGrid(WIDTH, HEIGHT, SIZE)
   }
 
   /**
@@ -98,6 +98,17 @@ class View {
 
   }
 
+  createScoreField () {
+    const scoreField = this.createElement(
+      'div',
+      {
+        id: 'score'
+      }
+    )
+    scoreField.innerHTML = 0
+    return scoreField
+  }
+
   update (obj){
     for (const key in obj) {
       this.state[key] = obj[key]
@@ -110,6 +121,24 @@ class View {
     element.style.gridColumnEnd = updatedCoordinates.x + 1
     element.style.gridRowStart = updatedCoordinates.y
     element.style.gridRowEnd = updatedCoordinates.y + 1
+  }
+
+  clearFixedBlocks () {
+    const blocksDOM = Array.from(document.querySelectorAll('.fixed'))
+    const blocksDOMIDs = blocksDOM.map(block => block.id)
+    const blockModelIDs = this.state.fixedBlocks.map(block => block.id)
+    const toRemove = []
+    const toUpdate = []
+    blocksDOMIDs.forEach(id => blockModelIDs.indexOf(id) === -1 ? toRemove.push(id) : toUpdate.push(id))
+    toRemove.forEach(id => {
+      const el = document.getElementById(id)
+      el.remove()
+    })
+    toUpdate.forEach(id => {
+      const el = document.getElementById(id)
+      const model = this.state.fixedBlocks.find(block => block.id === id)
+      this.updateCoordinates(el, model)
+    })
   }
 
   updateUI (stateKey) {
@@ -140,29 +169,13 @@ class View {
           block.classList.add('fixed')
           this.updateCoordinates(block, blockModel)
         })
-
-        // Remove blocks from DOM
-        // 1. get an array of ids from the model
-        const blockIDs = this.state[stateKey].map(block => {
-          return block.id
-        })
-        // 2. get an array of ids from the dom
-        const blocksDom = Array.from(document.querySelectorAll('.fixed'))
-        const b = blocksDom.map(block => {
-          return block.id
-        })
-        // 3. get a list of ids that exist only on the dom, not in the model
-        const toRemove = b.filter(block => blockIDs.indexOf(block) === -1)
-        // 4. add css for row to remove
-        toRemove.forEach(block => {
-          const bl = document.getElementById(block)
-          bl.classList.add('flash')  
-        })
-        // 5. remove elements 
-        setTimeout(() => {
-          const r = document.querySelectorAll('.flash')
-          r.forEach(el => el.remove())
-        }, 200)
+        this.clearFixedBlocks()
+        break
+      }
+      case stateKey === 'score': {
+        const scoreField = document.getElementById('score')
+        scoreField.innerHTML = this.state[stateKey]
+        break
       }
     }
   }
@@ -212,9 +225,11 @@ class View {
     const sideBar = this.createSideBar()
     const startButton = this.createButton('Start', 'start')
     // const pauseButton = this.createButton('Pause', 'pause')
+    const scoreField = this.createScoreField()
     this.root.appendChild(leftContainer)
     this.root.appendChild(sideBar)
     sideBar.appendChild(startButton)
+    sideBar.appendChild(scoreField)
     // sideBar.appendChild(pauseButton)
     leftContainer.appendChild(this.grid)
   }

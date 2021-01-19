@@ -27,8 +27,8 @@ class GameModel {
 
   createTetrimino () {
     const arr = [new I(), new J(), new L(), new O(), new S(), new T(), new Z()]
-    // const tetrimino = new S()
     const tetrimino = arr[Math.floor(Math.random() * arr.length)]
+    // const tetrimino = new O()
     this.livePiece = tetrimino
     this.notifyObservers({ livePiece: this.livePiece })
   }
@@ -49,25 +49,22 @@ class GameModel {
    */
   validateMove (x, y) {
     let valid = true
-    // console.log(`x: ${x}, y: ${y}`)
     // Piece cannot move less than the left wall
     if (x <= 0) {
       valid = false
-      // console.log('x is less that or equal to 0')
     }
     // piece cannot move above the right wall
     if (x >= WIDTH + 1) {
       valid = false
-      // console.log('x is greater than or equal to width')
     }
     // piece cannot move lower than the bottom row
     if (y >= HEIGHT + 1) {
       valid = false
     }
 
+    // piece cannot occupy the space of existing pieces
     this.fixedBlocks.forEach(block => {
       if (block.x === x && block.y === y){
-        // console.log(`Block x (${block.x}) === x (${x}) && Block y (${block.y}) === x (${y})`)
         valid = false
       }
     })
@@ -83,17 +80,13 @@ class GameModel {
     return valid
   }
 
-  pieceShouldFix (x, y) {
-    // should return a boolean - to be called at the end of each interval in the controller
-    let shouldFix = false
-    shouldFix = y >= HEIGHT ? true : false
-    if (!shouldFix) {
-      shouldFix = this.fixedBlocks.some(block => {
-        return (block.x === x && block.y === y)
-      })
-    }
-    return shouldFix
-  }
+  // validateRotation(){
+  //   const rotatedBlockCoors = this.livePiece.getRotatedCooridnates()
+  //   const validBlocks = rotatedBlockCoors.map(block => {
+  //     return this.validateMove(block.x, block.y)
+  //   })
+  //   const valid = 
+  // }
 
   fixTetrimino () {
     // Method will break tetrimino into individual blocks and push to fixed pieces
@@ -133,8 +126,11 @@ class GameModel {
   }
 
   clearRows (rowNums) {
+    // Update Score
+    this.score = this.score + (100 * rowNums.length)
+
+    // Remove rows from model
     rowNums.forEach(row => {
-      const blocks = this.fixedBlocks.filter(block => block.y === row)
       const mapped = this.fixedBlocks.map(block => {
         /**
          * If block are below current row number, do nothing
@@ -154,15 +150,15 @@ class GameModel {
           return updatedBlock
         }
       })
+      
       const filtered = mapped.filter(block => block !== null)
       this.fixedBlocks = filtered
 
     })
-    this.notifyObservers(
-      {
-        fixedBlocks: this.fixedBlocks
-      }
-    )
+    this.notifyObservers({ 
+      fixedBlocks: this.fixedBlocks,
+      score: this.score
+    })
   }
 
   updateScore () {
@@ -170,7 +166,10 @@ class GameModel {
   }
 
   checkGameOver () {
-    return false
+    // if(this.)
+    const isOver = this.fixedBlocks.some(block => block.y < 2 && block.x === 4)
+    // console.log('isOver: ', isOver)
+    return isOver
   }
 
   /**
@@ -196,8 +195,6 @@ class GameModel {
     })
   }
 
-  init () {
-  }
 }
 
 /**************
@@ -217,7 +214,6 @@ class Block {
    * @param {number} y 
    * Coordinates for live peices are only 'translated'
    * The starting positions are added to the Tetrimino's reference points
-   * Reference points are updated
    */
   translateCoordinates (x, y) {
     return {
@@ -262,7 +258,6 @@ class Tetrimino {
       const coordinates = this.configurations[this.rotationIndex]
       block.setCoordinates(coordinates[i].x, coordinates[i].y)
     })
-
   }
 
   getTranslatedCoordinates (x, y){
@@ -274,8 +269,23 @@ class Tetrimino {
     })
   }
 
-  getRotatedCooridnates () {
-    
+  getRotatedCoordinates () {
+    // Cycle through configurations
+    let rI = this.rotationIndex
+    if (rI < this.configurations.length - 1) {
+      rI += 1
+    } else {
+      rI = 0
+    }
+    // Update the each block to the new position
+    const coordinates = this.blocks.map((block, i) => {
+      const configCoors = this.configurations[0][i]
+      return {
+        x: configCoors.x + this.referenceX,
+        y: configCoors.y + this.referenceY
+      }
+    })
+    return coordinates
   }
 
   updateBlockCoordinates (x, y) {

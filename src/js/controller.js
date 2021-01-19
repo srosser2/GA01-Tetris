@@ -18,6 +18,11 @@ class Controller {
     this.model.createTetrimino()
 
     this.playInterval = setInterval(() => {
+      if (this.model.checkGameOver()){
+        clearInterval(this.playInterval)
+        alert('Game Over! You scored ' + this.model.score + ' points' )
+        return
+      } 
 
       const proposedCoordinates = this.model.livePiece.getTranslatedCoordinates(0, 1)
       // Return an array of true or false values if the piece
@@ -53,11 +58,6 @@ class Controller {
       *   model.updateLivePieceCoors
       * 
       */
-
-      if (this.model.checkGameOver()){
-        console.log('Game Over')
-        return
-      } 
 
       // if (this.model.pieceShouldFix()) {
       //   this.model.fixBlocks()
@@ -97,7 +97,10 @@ class Controller {
         break
       }
       case 'up': {
-        this.model.livePiece.rotate()
+        const valid = this.model.validateMultipleBlocks(this.model.livePiece.getRotatedCoordinates())
+        if (valid) {
+          this.model.livePiece.rotate()
+        }
         break
       }
     }
@@ -110,7 +113,7 @@ class Controller {
   }
 
   init () {
-    this.model.init()
+
     this.view.init(this.model.stateSnapshot())
     this.view.initKeyEvents(this.moveBlock)
     this.model.addObserver(this.view)
