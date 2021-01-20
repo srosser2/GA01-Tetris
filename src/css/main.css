@@ -45,6 +45,15 @@ button:hover {
   flex: 2;
 }
 
+
+#grid {
+  border: 1px solid #e4e4e4;
+}
+
+#queue {
+  margin: 20px;
+}
+
 .block {
   background-color:	#F0F0F0;
   height: 100%;

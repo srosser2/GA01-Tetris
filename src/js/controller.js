@@ -16,7 +16,9 @@ class Controller {
       return
     }
     this.isPlaying = true
-    this.model.createTetrimino()
+    this.model.initGame()
+    // this.model.createTetrimino()
+    console.log(this.model.livePiece)
     this.dropTimeout(this.model.dropSpeed)
   }
 
@@ -48,7 +50,7 @@ class Controller {
         if (fullRows.length > 0) {
           this.model.clearRows(fullRows)
         }
-        this.model.createTetrimino()
+        this.model.pushQueueToLive()
       }
 
       return this.dropTimeout(sp)
@@ -57,7 +59,9 @@ class Controller {
   }
 
   pause () {
-
+    console.log('pause game')
+    clearTimeout(this.playTimeout)
+    this.isPlaying = false
   }
 
   moveBlock (direction) {
@@ -108,7 +112,7 @@ class Controller {
 
   bindFunctions () {
     this.view.startGameHandler(this.play)
-    // this.view.pauseGameHandler(this.pause) // function is buggy - implement later
+    this.view.pauseGameHandler(this.pause) // function is buggy - implement later
   }
 
   init () {

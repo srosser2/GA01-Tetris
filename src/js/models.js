@@ -27,7 +27,6 @@ class GameModel {
     this.score = 0
     this.level = 0
     this.numberOfLines = 0
-    this.createTetrimino = this.createTetrimino
     this.observers = []
     this.dropSpeed = 1000
     this.softDropSpeed = 50
@@ -44,11 +43,34 @@ class GameModel {
   }
 
   createTetrimino () {
-    const arr = [new I(), new J(), new L(), new O(), new S(), new T(), new Z()]
-    // const arr = [new Z()]
-    const tetrimino = arr[Math.floor(Math.random() * arr.length)]
-    this.livePiece = tetrimino
-    this.notifyObservers({ livePiece: this.livePiece })
+    const tetriminos = [new I(), new J(), new L(), new O(), new S(), new T(), new Z()]
+    return tetriminos[Math.floor(Math.random() * tetriminos.length)]
+  }
+
+  addToQueue () {
+    const tetrimino = this.createTetrimino()
+    this.queue.push(tetrimino)
+  }
+
+  pushQueueToLive () {
+    // Take the first piece in the queue and make it the live peice
+    const livePiece = this.queue.slice(0, 1)[0]
+    this.livePiece = livePiece
+    // Add a new piece and update the queue
+    this.addToQueue()
+    const updatedQueue = this.queue.slice(1)
+    this.queue = updatedQueue
+    // Send updates to view
+    this.notifyObservers({ 
+      livePiece: this.livePiece,
+      queue: this.queue
+    })
+  }
+
+  initQueue () {
+    for (let i = 0; i < 3; i++) {
+      this.addToQueue()
+    }
   }
 
   updateLivePieceCoor (x, y) {
@@ -245,6 +267,12 @@ class GameModel {
     this.observers.forEach(observer => {
       observer.update(update)
     })
+  }
+
+  initGame () {
+    // TO DO
+    this.initQueue()
+    this.pushQueueToLive()
   }
 
 }

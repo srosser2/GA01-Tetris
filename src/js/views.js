@@ -2,7 +2,7 @@ class View {
   constructor (){
     this.state = {}
     this.root = document.querySelector('#root')
-    this.grid = this.createGrid(WIDTH, HEIGHT, SIZE)
+    this.grid = this.createGrid(WIDTH, HEIGHT, SIZE, 'grid')
   }
 
   /**
@@ -45,51 +45,56 @@ class View {
     )
   }
 
+  createQueue () {
+    const queue = this.createGrid(6, 10, SIZE, 'queue')
+    return queue
+  }
+
   /**
    * 
    * @param {number} w - width
    * @param {number} h - height
    * @param {number} size - size in px
    */
-  createGrid (w, h, size) {
+  createGrid (w, h, size, id) {
     const attributes = {
-      id: 'grid'
+      id: id
     }
     const styles = {
       display: 'grid',
       gridTemplateColumns: `repeat(${w}, ${size}px)`,
       gridTemplateRows: `repeat(${h}, ${size}px)`,
-      border: '1px solid #A8A8A8'
     }
     const grid = this.createElement('div', attributes, styles)
     return grid
   }
 
-  createTetrimino (tetrimino) {
-    tetrimino.blocks.map(block => {
+  createTetrimino (model, classes = null) {
+    const tetrimino = model.blocks.map(block => {
       const el = this.createElement(
         'div',
         {
           id: block.id,
-          class: `live block ${tetrimino.cssClass}`
+          class: `block ${classes.join(' ')} ${model.cssClass}`
         },
         {
-          gridColumnStart: block.x + tetrimino.referenceX,
-          gridColumnEnd: block.x + tetrimino.referenceX + 1,
-          gridRowStart: block.y + tetrimino.referenceY,
-          gridRowEnd: block.y + tetrimino.referenceY + 1
+          gridColumnStart: block.x + model.referenceX,
+          gridColumnEnd: block.x + model.referenceX + 1,
+          gridRowStart: block.y + model.referenceY,
+          gridRowEnd: block.y + model.referenceY + 1
         }
       )
-      this.grid.append(el)
+      return el
     })
+    return tetrimino
   }
 
-  createButton (buttonText, id) {
+  createButton (buttonText, id, classes) {
     const button = this.createElement(
       'button',
       {
         id: id,
-        class: 'button'
+        class: classes.join(' ')
       }
     )
 
@@ -150,6 +155,21 @@ class View {
     element.style.gridRowEnd = updatedCoordinates.y + 1
   }
 
+  updateQueue () {
+    const queue = document.querySelector('#queue')
+    queue.innerHTML = ''
+    const tetriminos = this.state.queue.map((tetrimino, i)=> {
+      tetrimino.referenceX = 1
+      tetrimino.referenceY = i * 3
+      const tet = this.createTetrimino(tetrimino, [])
+      return tet
+    })
+
+    tetriminos.forEach(tetrimino => {
+      tetrimino.forEach(block => queue.appendChild(block))
+    })
+  }
+
   clearFixedBlocks () {
     const blocksDOM = Array.from(document.querySelectorAll('.fixed'))
     const blocksDOMIDs = blocksDOM.map(block => block.id)
@@ -171,14 +191,19 @@ class View {
   updateUI (stateKey) {
     switch (true) {
       case stateKey === 'livePiece': {
+        const tModel = this.state[stateKey]
+        
         let liveBlocks = Array.from(document.querySelectorAll('.live'))
         if (liveBlocks.length === 0) {
-          this.createTetrimino(this.state[stateKey])
+          tModel.referenceX = 4
+          const tetrimino = this.createTetrimino(this.state[stateKey], ['live'])
+
+          tetrimino.forEach(block => this.render(block, '#grid'))
           liveBlocks = Array.from(document.querySelectorAll('.live'))
         }
         // Update the coordinates
         liveBlocks.forEach((block, i) => {
-          const tModel = this.state[stateKey]
+          
           const currentConfig = tModel.blocks
           const currentBlock = currentConfig[i]
           const blockCoordinates = currentBlock.translateCoordinates(tModel.referenceX, tModel.referenceY)
@@ -212,6 +237,9 @@ class View {
         const levelField = document.getElementById('level')
         levelField.innerHTML = this.state[stateKey]
         break
+      }
+      case stateKey === 'queue': {
+        this.updateQueue()
       }
     }
   }
@@ -265,21 +293,26 @@ class View {
   }
 
   pauseGameHandler (fn) {
-    const pauseBtn = document.querySelector('#pause')
-    pauseBtn.addEventListener('click', fn)
+    // const pauseBtn = document.querySelector('#pause')
+    // pauseBtn.addEventListener('click', fn)
   }
 
   generateUI () {
     const leftContainer = this.createLeftContainer()
     const sideBar = this.createSideBar()
-    const startButton = this.createButton('Start', 'start')
-    // const pauseButton = this.createButton('Pause', 'pause')
+    const queue = this.createQueue()
+    const startButton = this.createButton('Start', 'start', ['button'])
+    // const pauseButton = this.createButton('Pause', 'pause', ['button', 'hidden'])
+    // const resumeButton = this.createButton('Resume', 'resume', ['button', 'hidden'])
     const statsContainer = this.createStatsDisplay()
     this.root.appendChild(leftContainer)
     this.root.appendChild(sideBar)
     sideBar.appendChild(startButton)
-    sideBar.appendChild(statsContainer)
     // sideBar.appendChild(pauseButton)
+    // sideBar.appendChild(resumeButton)
+    sideBar.appendChild(statsContainer)
+    sideBar.appendChild(queue)
+    
     leftContainer.appendChild(this.grid)
   }
 
