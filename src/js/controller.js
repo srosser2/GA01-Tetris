@@ -8,22 +8,29 @@ class Controller {
     this.pause = this.pause.bind(this)
     this.moveBlock = this.moveBlock.bind(this)
     this.resetDropSpeed = this.resetDropSpeed.bind(this)
-    this.dropSpeed = 1000
-    this.softDropSpeed = 50
     this.softDrop = false
   }
 
-  play2 (speed) {
+  play () {
+    if (this.isPlaying === true){
+      return
+    }
+    this.isPlaying = true
+    this.model.createTetrimino()
+    this.dropTimeout(this.model.dropSpeed)
+  }
+
+  dropTimeout (speed) {
     this.playTimeout = setTimeout(() => {
       if (this.model.checkGameOver()){
         clearInterval(this.playInterval)
         alert('Game Over! You scored ' + this.model.score + ' points' )
         return
       } 
-      let sp = this.dropSpeed
+      let sp = this.model.dropSpeed
 
       if (this.softDrop){
-        sp = this.softDropSpeed
+        sp = this.model.softDropSpeed
       }
 
       const proposedCoordinates = this.model.livePiece.getTranslatedCoordinates(0, 1)
@@ -32,7 +39,7 @@ class Controller {
 
       if (valid) {
         this.model.updateLivePieceCoor(0, 1)
-        return this.play2(sp)
+        return this.dropTimeout(sp)
       }
 
       if (!valid) {
@@ -44,19 +51,9 @@ class Controller {
         this.model.createTetrimino()
       }
 
-      return this.play2(sp)
+      return this.dropTimeout(sp)
 
     }, speed)
-  }
-
-  play () {
-    if (this.isPlaying === true){
-      return
-    }
-    this.isPlaying = true
-    this.model.createTetrimino()
-    this.play2(this.dropSpeed)
-
   }
 
   pause () {
@@ -91,7 +88,13 @@ class Controller {
       case 'down': {
         clearTimeout(this.playTimeout)
         this.softDrop = true
-        this.play2(this.softDropSpeed)
+        this.dropTimeout(this.model.softDropSpeed)
+        break
+      }
+
+      case 'space': {
+        const state = this.model.stateSnapshot()
+        console.log(state)
       }
     }
     
@@ -109,7 +112,6 @@ class Controller {
   }
 
   init () {
-
     this.view.init(this.model.stateSnapshot())
     this.view.initKeyDownEvents(this.moveBlock)
     this.view.initKeyUpEvents(this.resetDropSpeed)

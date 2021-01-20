@@ -170,7 +170,6 @@ class View {
 
   updateUI (stateKey) {
     switch (true) {
-      // Change to live piece
       case stateKey === 'livePiece': {
         let liveBlocks = Array.from(document.querySelectorAll('.live'))
         if (liveBlocks.length === 0) {
@@ -243,6 +242,10 @@ class View {
           break
         case key === 'ArrowUp':
           fn('up')
+          break
+        case key === 'Space':
+          fn('space')
+          break
       }
     })
   }

@@ -3,9 +3,24 @@ class GameModel {
     this.livePiece = {}
     this.fixedBlocks = [
       // {
-      //   id: 1,
+      //   id: 'bl-1611133257898',
       //   x: 4,
-      //   y: 3
+      //   y: 19
+      // },
+      // {
+      //   id: 'bl-1611130060808',
+      //   x: 5, 
+      //   y: 19
+      // },
+      // {
+      //   id: 'bl-1611129470307',
+      //   x: 5, 
+      //   y: 20
+      // },
+      // {
+      //   id: 'bl-1611125369982', 
+      //   x: 6, 
+      //   y: 20
       // }
     ]
     this.queue = []
@@ -14,6 +29,8 @@ class GameModel {
     this.numberOfLines = 0
     this.createTetrimino = this.createTetrimino
     this.observers = []
+    this.dropSpeed = 1000
+    this.softDropSpeed = 50
   }
 
   stateSnapshot () {
@@ -28,8 +45,8 @@ class GameModel {
 
   createTetrimino () {
     const arr = [new I(), new J(), new L(), new O(), new S(), new T(), new Z()]
+    // const arr = [new Z()]
     const tetrimino = arr[Math.floor(Math.random() * arr.length)]
-    // const tetrimino = new O()
     this.livePiece = tetrimino
     this.notifyObservers({ livePiece: this.livePiece })
   }
@@ -130,6 +147,7 @@ class GameModel {
     this.updateScore(rowNums.length)
     this.updateNumberOfLines(rowNums.length)
     this.updateLevel()
+    this.increaseDropSpeed()
 
     // Remove rows from model
     rowNums.forEach(row => {
@@ -193,10 +211,13 @@ class GameModel {
 
   updateLevel () {
     const level = Math.floor(this.numberOfLines / 10)
-    console.log(level)
     this.level = level
   }
 
+  increaseDropSpeed () {
+    const decrement = this.level * 50
+    this.dropSpeed = 1000 - decrement
+  }
 
   checkGameOver () {
     const isOver = this.fixedBlocks.some(block => block.y < 2 && block.x === 4)
