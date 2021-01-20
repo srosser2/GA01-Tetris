@@ -9,6 +9,7 @@ class Controller {
     this.moveBlock = this.moveBlock.bind(this)
     this.resetDropSpeed = this.resetDropSpeed.bind(this)
     this.softDrop = false
+    this.state = {}
   }
 
   play () {
@@ -16,9 +17,7 @@ class Controller {
       return
     }
     this.isPlaying = true
-    this.model.initGame()
-    // this.model.createTetrimino()
-    console.log(this.model.livePiece)
+    this.model.startGame(this.state)
     this.dropTimeout(this.model.dropSpeed)
   }
 
@@ -59,9 +58,10 @@ class Controller {
   }
 
   pause () {
-    console.log('pause game')
     clearTimeout(this.playTimeout)
     this.isPlaying = false
+    const state = this.model.stateSnapshot()
+    this.state = state
   }
 
   moveBlock (direction) {

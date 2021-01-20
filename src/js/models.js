@@ -1,7 +1,7 @@
 class GameModel {
-  constructor(){
-    this.livePiece = {}
-    this.fixedBlocks = [
+  constructor(state){
+    this.livePiece = state.livePiece || {}
+    this.fixedBlocks = state.fixedBlocks || [
       // {
       //   id: 'bl-1611133257898',
       //   x: 4,
@@ -23,13 +23,13 @@ class GameModel {
       //   y: 20
       // }
     ]
-    this.queue = []
-    this.score = 0
-    this.level = 0
-    this.numberOfLines = 0
-    this.observers = []
-    this.dropSpeed = 1000
-    this.softDropSpeed = 50
+    this.queue = state.queue || []
+    this.score = state.score || 0
+    this.level = state.level || 0
+    this.numberOfLines = state.numberOfLines || 0
+    this.observers = state.observers || []
+    this.dropSpeed = state.dropSpeed || 1000
+    this.softDropSpeed = state.softDropSpped || 50
   }
 
   stateSnapshot () {
@@ -38,7 +38,8 @@ class GameModel {
       fixedBlocks: this.fixedBlocks,
       queue: this.queue,
       score: this.score,
-      level: this.level
+      level: this.level,
+      numberOfLines: this.numberOfLines
     }
   }
 
@@ -269,10 +270,12 @@ class GameModel {
     })
   }
 
-  initGame () {
-    // TO DO
-    this.initQueue()
-    this.pushQueueToLive()
+  startGame (state) {
+    // state.livePiece ? state.livePiece : this.livePiece
+    if(!state.queue) {
+      this.initQueue()
+      this.pushQueueToLive()
+    } 
   }
 
 }

@@ -3,6 +3,8 @@ class View {
     this.state = {}
     this.root = document.querySelector('#root')
     this.grid = this.createGrid(WIDTH, HEIGHT, SIZE, 'grid')
+    this.sideBar = document.querySelector('#rhs')
+    this.mainContainer = document.querySelector('#lhs')
   }
 
   /**
@@ -293,27 +295,14 @@ class View {
   }
 
   pauseGameHandler (fn) {
-    // const pauseBtn = document.querySelector('#pause')
-    // pauseBtn.addEventListener('click', fn)
+    const pauseBtn = document.querySelector('#pause')
+    pauseBtn.addEventListener('click', fn)
   }
 
   generateUI () {
-    const leftContainer = this.createLeftContainer()
-    const sideBar = this.createSideBar()
     const queue = this.createQueue()
-    const startButton = this.createButton('Start', 'start', ['button'])
-    // const pauseButton = this.createButton('Pause', 'pause', ['button', 'hidden'])
-    // const resumeButton = this.createButton('Resume', 'resume', ['button', 'hidden'])
-    const statsContainer = this.createStatsDisplay()
-    this.root.appendChild(leftContainer)
-    this.root.appendChild(sideBar)
-    sideBar.appendChild(startButton)
-    // sideBar.appendChild(pauseButton)
-    // sideBar.appendChild(resumeButton)
-    sideBar.appendChild(statsContainer)
-    sideBar.appendChild(queue)
-    
-    leftContainer.appendChild(this.grid)
+    this.sideBar.appendChild(queue)
+    this.mainContainer.appendChild(this.grid)
   }
 
   init (state) {

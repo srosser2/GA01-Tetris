@@ -15,8 +15,39 @@
   </header>
 
   <main id="root">
+    <section id="lhs" class="left-column">
+    </section>
 
+    <aside id="rhs" class="right-column">
+      <button id="start" class="button">New Game</button>
+      <button id="pause" class="button">Pause</button>
+      <table id="stats">
+        <tbody>
+          <tr>
+            <td>Score</td>
+            <td id="score">0</td>
+          </tr>
+          <tr>
+            <td>Lines</td>
+            <td id="lines">0</td>
+          </tr>
+          <tr>
+            <td>Level</td>
+            <td id="level">0</td>
+          </tr>
+        </tbody>
+      </table>
+    </aside>
   </main>
+
+  <!-- Popup Menu - implement later -->
+
+  <!-- <section>
+    <div class="backdrop"></div>
+    <div id="menu" class="menu">
+      <h1>Tetris!</h1>
+    </div>
+  </section> -->
 
   <script src="./src/js/config.js"></script>
   <script src="./src/js/models.js"></script>
