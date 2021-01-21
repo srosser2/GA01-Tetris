@@ -292,6 +292,14 @@ class GameModel {
     })
   }
 
+  reset () {
+    this.livePiece = {}
+    this.fixedBlocks = []
+    this.score = 0
+    this.level = 0
+    this.numberOfLines = 0
+  }
+
   /**
    * 
    * @param {class} observer 

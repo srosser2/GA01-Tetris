@@ -77,7 +77,8 @@ class Controller {
     this.gameIsActive = false
     this.view.updateResultString()
     this.view.showMenuPanel('results')
-
+    this.model.reset()
+    this.view.resetUI()
   }
 
   showLeaderboard () {

@@ -223,6 +223,11 @@ class View {
       case stateKey === 'livePiece': {
         const tModel = this.state[stateKey]
         
+        if (this.state[stateKey] === null) {
+          this.grid.innerHTML = ''
+          return null
+        } 
+
         let liveBlocks = Array.from(document.querySelectorAll('.live'))
         if (liveBlocks.length === 0) {
           tModel.referenceX = 4
@@ -242,6 +247,11 @@ class View {
         break
       }
       case stateKey === 'fixedBlocks': {
+
+        if (this.state[stateKey] === null) {
+          return null
+        }
+
         const liveBlocks = Array.from(document.querySelectorAll('.live'))
         liveBlocks.forEach(block => { 
           // find the equivalent block in model
@@ -278,6 +288,17 @@ class View {
       }
       
     }
+  }
+
+  resetUI () {
+    this.update({
+      livePiece: null,
+      fixedBlocks: null,
+      score: 0,
+      numberOfLines: 0,
+      level: 0,
+      queue: []
+    })
   }
 
 
