@@ -30,6 +30,7 @@ class GameModel {
     this.observers = state.observers || []
     this.dropSpeed = state.dropSpeed || 1000
     this.softDropSpeed = state.softDropSpped || 50
+    this.scoreBoard = this.getScoreBoard()
   }
 
   stateSnapshot () {
@@ -39,7 +40,8 @@ class GameModel {
       queue: this.queue,
       score: this.score,
       level: this.level,
-      numberOfLines: this.numberOfLines
+      numberOfLines: this.numberOfLines,
+      scoreBoard: this.scoreBoard
     }
   }
 
@@ -250,9 +252,44 @@ class GameModel {
     this.dropSpeed = 1000 - decrement
   }
 
+  startGame (state) {
+    if (!state.queue) {
+      this.initQueue()
+      this.pushQueueToLive()
+    } 
+  }
+
   checkGameOver () {
     const isOver = this.fixedBlocks.some(block => block.y < 2 && block.x === 4)
     return isOver
+  }
+
+  getScoreBoard () {
+    if (localStorage){
+      const scores = localStorage.getItem('highscores')
+      let parsedScores
+      if (scores) {
+        parsedScores = JSON.parse(scores)
+      } else {
+        parsedScores = DEFAULT_SCOREBOARD
+      }
+      return parsedScores
+    }
+  }
+
+  updateScoreBoard (scoreObj) {
+    if (!localStorage) {
+      return
+    }
+    const scores = this.getScoreBoard()
+    scores.push(scoreObj)
+    scores.sort((a, b) => b.score - a.score)
+    const newScores = scores.slice(0, 5)
+    const newScoresString = JSON.stringify(newScores)
+    localStorage.setItem('highscores', newScoresString)
+    this.notifyObservers({
+      scoreBoard: this.scoreBoard
+    })
   }
 
   /**
@@ -276,17 +313,6 @@ class GameModel {
     this.observers.forEach(observer => {
       observer.update(update)
     })
-  }
-
-  startGame (state) {
-    // state.livePiece ? state.livePiece : this.livePiece
-    if (!state.queue) {
-      this.initQueue()
-      this.pushQueueToLive()
-    } 
-    // this.notifyObservers({
-    //     fixedBlocks: this.fixedBlocks
-    //   })
   }
 
 }

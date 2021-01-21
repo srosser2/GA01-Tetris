@@ -26,7 +26,7 @@
     </section>
 
     <aside id="rhs" class="right-column">
-      <button id="start" class="button">Start</button>
+      <!-- <button id="start" class="button">Start</button> -->
       <button id="pause" class="button">Pause</button>
       <table id="stats">
         <tbody>
@@ -47,20 +47,98 @@
     </aside>
   </main>
 
-  <!-- Popup Menu - implement later -->
+  <section>
+    <div id="backdrop" class="backdrop"></div>
 
-  <!-- <section>
-    <div class="backdrop"></div>
-    <div id="menu" class="menu">
-      <h1>Tetris!</h1>
+    <div id="popup" class="popup">
+
+      <div id="main-menu" class="menu">
+        <div class="logo-container menu-logo">
+          <div class="block logo-block i-block">t</div>
+          <div class="block logo-block l-block">e</div>
+          <div class="block logo-block o-block">t</div>
+          <div class="block logo-block s-block">r</div>
+          <div class="block logo-block t-block">i</div>
+          <div class="block logo-block z-block">s</div>
+        </div>
+  
+      <button id="start" class="button">Start</button>
+      <button id="instructions" class="button">How to Play</button>
+      <button id="leaderboard-btn" class="button">Leaderboard</button>
+      </div>
+      
+      <div id="leader-board-menu" class="menu hidden">
+        <div class="leader-heading-container menu-logo">
+          <div class="block logo-block i-block">l</div>
+          <div class="block logo-block j-block">e</div>
+          <div class="block logo-block l-block">a</div>
+          <div class="block logo-block o-block">d</div>
+          <div class="block logo-block s-block">e</div>
+          <div class="block logo-block t-block">r</div>
+          <div class="block logo-block z-block">s</div>
+        </div>
+    
+        <table class="leader-board">
+          <tbody id="leader-board-tbody">
+            <tr>
+              <td>#1</td>
+              <td>Mario</td>
+              <td>300000</td>
+            </tr>
+            <tr>
+              <td>#2</td>
+              <td>Donkey Kong</td>
+              <td>250000</td>
+            </tr>
+            <tr>
+              <td>#3</td>
+              <td>Yoshi</td>
+              <td>120000</td>
+            </tr>
+            <tr>
+              <td>#4</td>
+              <td>Luigi</td>
+              <td>95000</td>
+            </tr>
+            <tr>
+              <td>#5</td>
+              <td>Bowser</td>
+              <td>19000</td>
+            </tr>
+          </tbody>
+        </table>
+    
+        <button class="button return-menu">Return to menu</button>
+      </div>
+
+      <div id="results" class="menu hidden">
+        <div class="leader-heading-container menu-logo">
+          <div class="block logo-block i-block">r</div>
+          <div class="block logo-block j-block">e</div>
+          <div class="block logo-block l-block">s</div>
+          <div class="block logo-block o-block">u</div>
+          <div class="block logo-block s-block">l</div>
+          <div class="block logo-block t-block">t</div>
+          <div class="block logo-block z-block">s</div>
+        </div>
+        <h2>Congratulations!</h2>
+        <p id="result-string">You reached level 100, scoring 100000 points and clearing 100 lines!</p>
+        <form>
+          <input id="player-name" type="text" placeholder="Name">
+          <button id="add-score" class="button return-menu">Add Score</button>
+          <!-- <input type="submit" value="Add Score"> -->
+        </form>
+        <button class="button return-menu secondary">Return to menu</button>
+      </div>
+
     </div>
-  </section> -->
+
+  </section>
 
   <script src="./src/js/config.js"></script>
   <script src="./src/js/models.js"></script>
   <script src="./src/js/views.js"></script>
   <script src="./src/js/controller.js"></script>
   <script src="./src/js/app.js"></script>
-  <script src="./src/js/models.test.js"></script>
 </body>
 </html>

@@ -2,10 +2,14 @@ class Controller {
   constructor (model, view) {
     this.model = model
     this.view = view
+    this.gameIsActive = false
     this.isPlaying = false
     this.playTimeout = null
     this.play = this.play.bind(this)
     this.pause = this.pause.bind(this)
+    this.showLeaderboard = this.showLeaderboard.bind(this)
+    this.addScore = this.addScore.bind(this)
+    this.returnToMenu = this.returnToMenu.bind(this)
     this.moveBlock = this.moveBlock.bind(this)
     this.resetDropSpeed = this.resetDropSpeed.bind(this)
     this.softDrop = false
@@ -16,6 +20,8 @@ class Controller {
     if (this.isPlaying === true){
       return
     }
+    this.gameIsActive = true
+    this.view.hidePopup()
     this.isPlaying = true
     this.model.startGame(this.state)
     this.dropTimeout(this.model.dropSpeed)
@@ -24,8 +30,7 @@ class Controller {
   dropTimeout (speed) {
     this.playTimeout = setTimeout(() => {
       if (this.model.checkGameOver()){
-        clearInterval(this.playInterval)
-        alert('Game Over! You scored ' + this.model.score + ' points' )
+        this.gameOver()
         return
       } 
 
@@ -63,46 +68,81 @@ class Controller {
     this.isPlaying = false
     const state = this.model.stateSnapshot()
     this.state = state
+    this.view.showMenuPanel('main-menu')
+  }
+
+  gameOver () {
+    clearInterval(this.playInterval)
+    this.isPlaying = false
+    this.gameIsActive = false
+    this.view.updateResultString()
+    this.view.showMenuPanel('results')
+
+  }
+
+  showLeaderboard () {
+    this.view.showMenuPanel('leader-board-menu')
+  }
+
+  returnToMenu () {
+    this.view.showMenuPanel('main-menu')
+  }
+
+  addScore (e) {
+    e.preventDefault()
+    const name = this.view.getPlayerName()
+    const score = this.model.score
+    const scoreObj = {
+      name, 
+      score
+    }
+    this.model.updateScoreBoard(scoreObj)
+    this.view.showMenuPanel('leader-board-menu')
   }
 
   moveBlock (direction) {
-    switch (direction){
-      case 'left': {
-        const proposed = this.model.livePiece.getTranslatedCoordinates(-1, 0)
-        const valid = this.model.validateMultipleBlocks(proposed)
-        if (valid) {
-          this.model.updateLivePieceCoor(-1, 0)
+    if (this.isPlaying) {
+      switch (direction){
+        case 'left': {
+          const proposed = this.model.livePiece.getTranslatedCoordinates(-1, 0)
+          const valid = this.model.validateMultipleBlocks(proposed)
+          if (valid) {
+            this.model.updateLivePieceCoor(-1, 0)
+          }
+          break
         }
-        break
-      }
-      case 'right': {
-        const proposed = this.model.livePiece.getTranslatedCoordinates(1, 0)
-        const valid = this.model.validateMultipleBlocks(proposed)
-        if (valid) {
-          this.model.updateLivePieceCoor(1, 0)
+        case 'right': {
+          const proposed = this.model.livePiece.getTranslatedCoordinates(1, 0)
+          const valid = this.model.validateMultipleBlocks(proposed)
+          if (valid) {
+            this.model.updateLivePieceCoor(1, 0)
+          }
+          break
         }
-        break
-      }
-      case 'up': {
-        const valid = this.model.validateMultipleBlocks(this.model.livePiece.getRotatedCoordinates())
-        if (valid) {
-          this.model.rotateLivePiece()
+        case 'up': {
+          const valid = this.model.validateMultipleBlocks(this.model.livePiece.getRotatedCoordinates())
+          if (valid) {
+            this.model.rotateLivePiece()
+          }
+          break
         }
-        break
-      }
-      case 'down': {
-        clearTimeout(this.playTimeout)
-        this.softDrop = true
-        this.dropTimeout(this.model.softDropSpeed)
-        break
-      }
-
-      case 'space': {
-        const state = this.model.stateSnapshot()
-        console.log(state)
+        case 'down': {
+          clearTimeout(this.playTimeout)
+          this.softDrop = true
+          this.dropTimeout(this.model.softDropSpeed)
+          break
+        }
+  
+        // TO DO: Remove OR add hard drop
+        case 'space': {
+          this.model.updateScoreBoard({
+            name: 'Toad',
+            score: 32000
+          })
+          this.model.getScoreBoard()
+        }
       }
     }
-    
   }
 
   resetDropSpeed(dir) {
@@ -113,7 +153,10 @@ class Controller {
 
   bindFunctions () {
     this.view.startGameHandler(this.play)
-    this.view.pauseGameHandler(this.pause) // function is buggy - implement later
+    this.view.pauseGameHandler(this.pause)
+    this.view.showLeaderBoardHandler(this.showLeaderboard)
+    this.view.returnToMenuHandler(this.returnToMenu)
+    this.view.addScoreHandler(this.addScore)
   }
 
   init () {

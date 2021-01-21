@@ -13,7 +13,7 @@ class View {
    * @param {Object} attributes 
    * @param {Object} styles
    */
-  createElement (tag, attributes, styles = {}) {
+  createElement (tag, attributes = {}, styles = {}) {
     const element = document.createElement(tag)
 
     const styleKeys = Object.keys(styles)
@@ -143,6 +143,10 @@ class View {
     return statsContainer
   }
 
+  /************************************
+   * DOM Updates
+   ************************************/
+
   update (obj){
     for (const key in obj) {
       this.state[key] = obj[key]
@@ -188,6 +192,30 @@ class View {
       const model = this.state.fixedBlocks.find(block => block.id === id)
       this.updateCoordinates(el, model)
     })
+  }
+
+  updateResultString () {
+    const resultEl = document.getElementById('result-string')
+    const resultStr = `You reached <strong>level ${this.state.level}</strong>, scoring <strong>${this.state.score}</strong> points and clearing <strong>${this.state.numberOfLines}</strong> ${this.state.numberOfLines > 1 ? 'lines' : 'line'}!`
+    resultEl.innerHTML = resultStr
+  }
+
+  updateScoreBoard () {
+    const scoreTable = document.getElementById('leader-board-tbody')
+    scoreTable.innerHTML = ''
+    const scores = this.state.scoreBoard.map((score, i)=> {
+      const tr = this.createElement('tr')
+      const position = this.createElement('td')
+      const name = this.createElement('td')
+      const points = this.createElement('td')
+      position.innerHTML = `#${i + 1}`
+      name.innerHTML = score.name
+      points.innerHTML = score.score
+      const arr = [position, name, points]
+      arr.forEach(item => tr.append(item))
+      return tr
+    })
+    scores.forEach(score => scoreTable.append(score))
   }
 
   updateUI (stateKey) {
@@ -242,9 +270,16 @@ class View {
       }
       case stateKey === 'queue': {
         this.updateQueue()
+        break
       }
+      case stateKey === 'scoreBoard': {
+        this.updateScoreBoard()
+        break
+      }
+      
     }
   }
+
 
   /**
    * 
@@ -255,6 +290,42 @@ class View {
     const parentElement = document.querySelector(parent)
     parentElement.append(element)
   }
+
+
+
+  /************************************
+   * Popup Management
+   ************************************/
+
+  showPopup () {
+    const backdrop = document.getElementById('backdrop')
+    const popup = document.getElementById('popup')
+    backdrop.classList.remove('hidden')
+    popup.classList.remove('hidden')
+  }
+
+  hidePopup () {
+    const backdrop = document.getElementById('backdrop')
+    const popup = document.getElementById('popup')
+    backdrop.classList.add('hidden')
+    popup.classList.add('hidden')
+  }
+
+
+
+  showMenuPanel (panelID) {
+    this.showPopup()
+    const menuDivs = Array.from(document.querySelectorAll('.menu'))
+    const panelToShow = document.getElementById(panelID)
+    menuDivs.forEach(menu => menu.classList.add('hidden'))
+    panelToShow.classList.remove('hidden')
+  }
+
+
+
+  /************************************
+   * Event Handlers
+   ************************************/
 
   initKeyDownEvents (fn) {
     document.addEventListener('keydown', e => {
@@ -299,6 +370,28 @@ class View {
     pauseBtn.addEventListener('click', fn)
   }
 
+  showLeaderBoardHandler (fn) {
+    const showLeaderBoardBtn = document.querySelector('#leaderboard-btn')
+    showLeaderBoardBtn.addEventListener('click', fn)
+  }
+
+  returnToMenuHandler (fn) {
+    const returnToMenuBtns = Array.from(document.querySelectorAll('.return-menu'))
+    returnToMenuBtns.forEach(btn => btn.addEventListener('click', fn))
+  }
+
+  addScoreHandler (fn) {
+    const addScoreBtn = document.querySelector('#add-score')
+    // const a = this.getPlayerName()
+    // const a = this.getPlayerName()
+    addScoreBtn.addEventListener('click', fn)
+  }
+
+  getPlayerName () {
+    const playerName = document.querySelector('#player-name')
+    return playerName.value
+  }
+
   generateUI () {
     const queue = this.createQueue()
     this.sideBar.appendChild(queue)
@@ -308,5 +401,6 @@ class View {
   init (state) {
     this.generateUI()
     this.state = state
+    this.updateScoreBoard()
   }
 }
