@@ -28,10 +28,11 @@ class Controller {
         alert('Game Over! You scored ' + this.model.score + ' points' )
         return
       } 
-      let sp = this.model.dropSpeed
 
+      let sp = this.model.dropSpeed
       if (this.softDrop){
         sp = this.model.softDropSpeed
+        this.model.updateScoreDrop()
       }
 
       const proposedCoordinates = this.model.livePiece.getTranslatedCoordinates(0, 1)

@@ -45,6 +45,7 @@ class GameModel {
 
   createTetrimino () {
     const tetriminos = [new I(), new J(), new L(), new O(), new S(), new T(), new Z()]
+    // const tetriminos = [new S()]
     return tetriminos[Math.floor(Math.random() * tetriminos.length)]
   }
 
@@ -228,6 +229,13 @@ class GameModel {
     this.score = this.score + score
   }
 
+  updateScoreDrop () {
+    this.score ++
+    this.notifyObservers({
+      score: this.score
+    })
+  }
+
   updateNumberOfLines (numberOfLines) {
     this.numberOfLines += numberOfLines
   }
@@ -272,10 +280,13 @@ class GameModel {
 
   startGame (state) {
     // state.livePiece ? state.livePiece : this.livePiece
-    if(!state.queue) {
+    if (!state.queue) {
       this.initQueue()
       this.pushQueueToLive()
     } 
+    // this.notifyObservers({
+    //     fixedBlocks: this.fixedBlocks
+    //   })
   }
 
 }
@@ -362,7 +373,7 @@ class Tetrimino {
     }
     // Update the each block to the new position
     const coordinates = this.blocks.map((block, i) => {
-      const configCoors = this.configurations[0][i]
+      const configCoors = this.configurations[rI][i]
       return {
         x: configCoors.x + this.referenceX,
         y: configCoors.y + this.referenceY
