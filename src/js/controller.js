@@ -8,6 +8,7 @@ class Controller {
     this.play = this.play.bind(this)
     this.pause = this.pause.bind(this)
     this.showLeaderboard = this.showLeaderboard.bind(this)
+    this.showHowTo = this.showHowTo.bind(this)
     this.addScore = this.addScore.bind(this)
     this.returnToMenu = this.returnToMenu.bind(this)
     this.moveBlock = this.moveBlock.bind(this)
@@ -22,6 +23,7 @@ class Controller {
     }
     this.gameIsActive = true
     this.view.hidePopup()
+    this.view.setStartResumeBtnText('Resume')
     this.isPlaying = true
     this.model.startGame(this.state)
     this.dropTimeout(this.model.dropSpeed)
@@ -76,9 +78,14 @@ class Controller {
     this.isPlaying = false
     this.gameIsActive = false
     this.view.updateResultString()
+    this.view.setStartResumeBtnText('Start')
     this.view.showMenuPanel('results')
     this.model.reset()
     this.view.resetUI()
+  }
+
+  showHowTo () {
+    this.view.showMenuPanel('how-to-play')
   }
 
   showLeaderboard () {
@@ -133,15 +140,6 @@ class Controller {
           this.dropTimeout(this.model.softDropSpeed)
           break
         }
-  
-        // TO DO: Remove OR add hard drop
-        case 'space': {
-          this.model.updateScoreBoard({
-            name: 'Toad',
-            score: 32000
-          })
-          this.model.getScoreBoard()
-        }
       }
     }
   }
@@ -155,6 +153,7 @@ class Controller {
   bindFunctions () {
     this.view.startGameHandler(this.play)
     this.view.pauseGameHandler(this.pause)
+    this.view.showHowToHandler(this.showHowTo)
     this.view.showLeaderBoardHandler(this.showLeaderboard)
     this.view.returnToMenuHandler(this.returnToMenu)
     this.view.addScoreHandler(this.addScore)

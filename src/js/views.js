@@ -332,8 +332,6 @@ class View {
     popup.classList.add('hidden')
   }
 
-
-
   showMenuPanel (panelID) {
     this.showPopup()
     const menuDivs = Array.from(document.querySelectorAll('.menu'))
@@ -396,6 +394,11 @@ class View {
     showLeaderBoardBtn.addEventListener('click', fn)
   }
 
+  showHowToHandler (fn) {
+    const showHowToBtn = document.querySelector('#instructions')
+    showHowToBtn.addEventListener('click', fn)
+  }
+
   returnToMenuHandler (fn) {
     const returnToMenuBtns = Array.from(document.querySelectorAll('.return-menu'))
     returnToMenuBtns.forEach(btn => btn.addEventListener('click', fn))
@@ -411,6 +414,11 @@ class View {
   getPlayerName () {
     const playerName = document.querySelector('#player-name')
     return playerName.value
+  }
+
+  setStartResumeBtnText (text) {
+    const startBtn = document.querySelector('#start')
+    startBtn.innerHTML = text
   }
 
   generateUI () {
