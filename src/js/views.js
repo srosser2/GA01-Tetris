@@ -185,13 +185,21 @@ class View {
     blocksDOMIDs.forEach(id => blockModelIDs.indexOf(id) === -1 ? toRemove.push(id) : toUpdate.push(id))
     toRemove.forEach(id => {
       const el = document.getElementById(id)
-      el.remove()
+      el.classList.add('flash')
     })
-    toUpdate.forEach(id => {
-      const el = document.getElementById(id)
-      const model = this.state.fixedBlocks.find(block => block.id === id)
-      this.updateCoordinates(el, model)
-    })
+    setTimeout(() => {
+      toRemove.forEach(id => {
+        const el = document.getElementById(id)
+        el.remove()
+      })
+      toUpdate.forEach(id => {
+        const el = document.getElementById(id)
+        const model = this.state.fixedBlocks.find(block => block.id === id)
+        this.updateCoordinates(el, model)
+      })
+    }, 500)
+    
+    
   }
 
   updateResultString () {

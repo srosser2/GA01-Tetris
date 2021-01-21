@@ -83,6 +83,7 @@ table > tbody > tr > td:last-child {
 }
 
 .block {
+  margin: auto;
   background-color:	#F0F0F0;
   height: 100%;
   width: 100%;
@@ -94,9 +95,12 @@ table > tbody > tr > td:last-child {
   background-color: lightslategray;
 }
 
-.flash {
-  background-color: rgb(164, 187, 211);
-  transition: 1s;
+.block.flash {
+  opacity: 0;
+  /* height: 10%;
+  width: 10%;  */
+  transition: 0.5s;
+  background-color: #F0F0F0;
 }
 
 /* Tetrimino Styles */
@@ -127,19 +131,6 @@ table > tbody > tr > td:last-child {
 
 .z-block {
   background-color: #577590;
-}
-
-
-.gold {
-  background-color: #FFD700;
-}
-
-.silver {
-  background-color: #C0C0C0;
-}
-
-.bronze {
-  background-color: #CD7F32;
 }
 
 /* Menu */
