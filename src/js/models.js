@@ -295,6 +295,7 @@ class GameModel {
   reset () {
     this.livePiece = {}
     this.fixedBlocks = []
+    this.queue = []
     this.score = 0
     this.level = 0
     this.numberOfLines = 0
