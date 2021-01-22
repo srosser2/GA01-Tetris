@@ -21,6 +21,9 @@ class Controller {
     if (this.isPlaying === true){
       return
     }
+    if (!this.gameIsActive) {
+      this.reset()
+    }
     this.gameIsActive = true
     this.view.hidePopup()
     this.view.setStartResumeBtnText('Resume')
@@ -80,6 +83,9 @@ class Controller {
     this.view.updateResultString()
     this.view.setStartResumeBtnText('Start')
     this.view.showMenuPanel('results')
+  }
+
+  reset () {
     this.model.reset()
     this.view.resetUI()
   }
@@ -100,6 +106,8 @@ class Controller {
     e.preventDefault()
     const name = this.view.getPlayerName()
     const score = this.model.score
+    console.log("score")
+    console.log(score)
     const scoreObj = {
       name, 
       score

@@ -288,7 +288,7 @@ class GameModel {
     const newScoresString = JSON.stringify(newScores)
     localStorage.setItem('highscores', newScoresString)
     this.notifyObservers({
-      scoreBoard: this.scoreBoard
+      scoreBoard: this.getScoreBoard()
     })
   }
 

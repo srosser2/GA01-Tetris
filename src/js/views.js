@@ -185,21 +185,14 @@ class View {
     blocksDOMIDs.forEach(id => blockModelIDs.indexOf(id) === -1 ? toRemove.push(id) : toUpdate.push(id))
     toRemove.forEach(id => {
       const el = document.getElementById(id)
-      el.classList.add('flash')
+      // el.classList.add('flash')
+      el.remove()
     })
-    setTimeout(() => {
-      toRemove.forEach(id => {
-        const el = document.getElementById(id)
-        el.remove()
-      })
-      toUpdate.forEach(id => {
-        const el = document.getElementById(id)
-        const model = this.state.fixedBlocks.find(block => block.id === id)
-        this.updateCoordinates(el, model)
-      })
-    }, 500)
-    
-    
+    toUpdate.forEach(id => {
+      const el = document.getElementById(id)
+      const model = this.state.fixedBlocks.find(block => block.id === id)
+      this.updateCoordinates(el, model)
+    })
   }
 
   updateResultString () {
@@ -414,8 +407,6 @@ class View {
 
   addScoreHandler (fn) {
     const addScoreBtn = document.querySelector('#add-score')
-    // const a = this.getPlayerName()
-    // const a = this.getPlayerName()
     addScoreBtn.addEventListener('click', fn)
   }
 
