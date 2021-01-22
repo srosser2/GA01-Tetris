@@ -22,7 +22,7 @@ const DEFAULT_SCOREBOARD = [
   },
   {
     name: 'Luigi',
-    score: 10
+    score: 5000
   }
 
 ]
