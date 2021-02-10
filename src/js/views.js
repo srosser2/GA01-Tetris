@@ -424,10 +424,12 @@ class View {
     const btn = document.querySelector('#moveRight')
     btn.addEventListener('click', () => fn('right'))
   }
+
   upKeyHandler (fn) {
     const btn = document.querySelector('#rotate')
     btn.addEventListener('click', () => fn('up'))
   }
+  
   downKeyHandler (fn) {
     const btn = document.querySelector('#drop')
     btn.addEventListener('mousedown', () => fn('down'))
