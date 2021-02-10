@@ -2,7 +2,7 @@
 
 const WIDTH = 10
 const HEIGHT = 20
-const SIZE = 30
+const SIZE = 1.5
 const DEFAULT_SCOREBOARD = [
   {
     name: 'Mario',

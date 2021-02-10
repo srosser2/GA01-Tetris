@@ -7,6 +7,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 header {
@@ -15,12 +16,15 @@ header {
   padding: 10px;
   /* border-bottom: 1px solid #eceece; */
   margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
 }
 
 main {
-  width: 600px;
+  width: 95%;
   margin: 0 auto;
   display: flex;
+  justify-content: center;
 }
 
 button {
@@ -43,7 +47,8 @@ button:hover {
 
 table#stats {
   margin: 20px 0;
-  width: 80%;
+  width: 100%;
+
 }
 
 table > tbody > tr {
@@ -52,7 +57,8 @@ table > tbody > tr {
 }
 
 table > tbody > tr > td {
-  padding: 10px;
+  padding: 0.5rem;
+  font-size: 0.75rem;
 }
 
 table > tbody > tr > td:last-child {
@@ -60,22 +66,26 @@ table > tbody > tr > td:last-child {
 }
 
 .left-column {
-  flex: 4;
+  /* flex: 4; */
   display: flex;
   justify-content: center;
+  flex-direction: column;
+  align-content: center;
 }
 
 .right-column {
+  margin-left: 15px;
   flex: 2;
   display: flex;
-  flex-grow: 1;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
+  /* justify-content: space-between; */
 }
 
 
 #grid {
   border: 1px solid #e4e4e4;
+  margin-bottom: 1rem;
 }
 
 #queue {
@@ -89,6 +99,36 @@ table > tbody > tr > td:last-child {
   width: 100%;
   border-radius: 40%;
   /* transform: rotate(45deg) */
+}
+
+#controls {
+  margin: 0 auto;
+}
+
+
+.block-control {
+  height: 2rem;
+  width: 2rem;
+  background-color: #F0F0F0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+.block-control:hover {
+  background-color: #cfcfcf;
+}
+
+.icon {
+  width: 70%;
+  height: 70%;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 
 .fixed {
@@ -138,7 +178,7 @@ table > tbody > tr > td:last-child {
 .menu {
   position: absolute;
   z-index: 100;
-  width: 450px;
+  max-width: 90%;
   max-height: 600px;
   overflow-y: scroll;
   background-color: white;
@@ -185,20 +225,20 @@ table > tbody > tr > td:last-child {
 
 .logo-container {
   display: grid;
-  grid-template-columns: repeat(6, 35px);
-  grid-template-rows: repeat(1, 35px);
+  grid-template-columns: repeat(6, 1.75rem);
+  grid-template-rows: repeat(1, 1.75rem);
 }
 
 .leader-heading-container {
   display: grid;
-  grid-template-columns: repeat(7, 35px);
-  grid-template-rows: repeat(1, 35px);
+  grid-template-columns: repeat(7, 1.75rem);
+  grid-template-rows: repeat(1, 1.75rem);
 }
 
 .how-to-play-container {
   display: grid;
-  grid-template-columns: repeat(11, 35px);
-  grid-template-rows: repeat(1, 35px);
+  grid-template-columns: repeat(11, 1.75rem);
+  grid-template-rows: repeat(1, 1.75rem);
 }
 
 .logo-block {
@@ -232,7 +272,6 @@ table.leader-board > tbody > tr {
 }
 
 table.leader-board > tbody > tr > td {
-
   min-height: 35px;
   min-width: 35px;
 }
@@ -257,7 +296,33 @@ table.leader-board > tbody > tr > td {
 
 input[type='text'] {
   border: none;
-  padding: 8px 10px;
-  margin: 0 20px 20px 0;
+  padding: 8px 6px;
+  margin: 0 0 20px 0;
   border-bottom: 1px solid #e4e4e4;
+}
+
+@media only screen and (min-width: 450px) {
+  main {
+    max-width: 600px;
+  }
+  .menu {
+    max-width: 450px;
+  }
+  #grid {
+    grid-template-columns: repeat(10, 1.75rem) !important;
+    grid-template-rows: repeat(20, 1.75rem) !important;
+  }
+  table > tbody > tr > td {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+  table#stats {
+    width: 200px;
+  }
+
+  input[type='text'] {
+    margin: 0 20px 20px 0;
+    padding: 8px 10px;
+    margin: 0 20px 20px 0;
+  }
 }

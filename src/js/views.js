@@ -28,35 +28,60 @@ class View {
     return element
   }
 
-  createLeftContainer () {
-    return this.createElement(
-      'section',
-      {
-        id: 'lhs',
-        class: 'left-column'
-      })
-  }
-
-  createSideBar () {
-    return this.createElement(
-      'aside',
-      {
-        id: 'rhs',
-        class: 'right-column'
-      }
-    )
-  }
-
   createQueue () {
-    const queue = this.createGrid(6, 10, SIZE, 'queue')
+    const queue = this.createGrid(4, 8, SIZE, 'queue')
     return queue
+  }
+
+  createControls () {
+    const controlContainer = this.createGrid(5, 1, 2.5, 'controls')
+    const buttons = [
+      {
+        name: 'rotate',
+        icon: 'rotate.png'
+      },
+      {
+        name: 'moveLeft',
+        icon: 'left.png'
+      },
+      {
+        name: 'drop',
+        icon: 'down.png'
+      },
+      {
+        name: 'moveRight',
+        icon: 'right.png'
+      },
+      {
+        name: 'pause',
+        icon: 'pause.png'
+      }
+    ]
+    buttons.forEach(button => {
+      const btn = this.createElement(
+        'div',
+        {
+          id: button.name,
+          class: 'block block-control'
+        })
+      const icon = this.createElement(
+        'img',
+        {
+          class: 'icon',
+          src: `./assets/${button.icon}`
+        })
+      btn.appendChild(icon)
+      controlContainer.appendChild(btn)
+    })
+    return controlContainer
+
   }
 
   /**
    * 
    * @param {number} w - width
    * @param {number} h - height
-   * @param {number} size - size in px
+   * @param {number} size - size in em
    */
   createGrid (w, h, size, id) {
     const attributes = {
@@ -64,8 +89,8 @@ class View {
     }
     const styles = {
       display: 'grid',
-      gridTemplateColumns: `repeat(${w}, ${size}px)`,
-      gridTemplateRows: `repeat(${h}, ${size}px)`,
+      gridTemplateColumns: `repeat(${w}, ${size}em)`,
+      gridTemplateRows: `repeat(${h}, ${size}em)`,
     }
     const grid = this.createElement('div', attributes, styles)
     return grid
@@ -390,6 +415,29 @@ class View {
     pauseBtn.addEventListener('click', fn)
   }
 
+  leftKeyHandler (fn) {
+    const btn = document.querySelector('#moveLeft')
+    btn.addEventListener('click', () => fn('left'))
+  }
+
+  rightKeyHandler (fn) {
+    const btn = document.querySelector('#moveRight')
+    btn.addEventListener('click', () => fn('right'))
+  }
+  upKeyHandler (fn) {
+    const btn = document.querySelector('#rotate')
+    btn.addEventListener('click', () => fn('up'))
+  }
+  downKeyHandler (fn) {
+    const btn = document.querySelector('#drop')
+    btn.addEventListener('mousedown', () => fn('down'))
+  }
+  downKeyUpHandler (fn) {
+    document.addEventListener('mouseup', () => {
+      fn('down')
+    })
+  }
+
   showLeaderBoardHandler (fn) {
     const showLeaderBoardBtn = document.querySelector('#leaderboard-btn')
     showLeaderBoardBtn.addEventListener('click', fn)
@@ -422,8 +470,11 @@ class View {
 
   generateUI () {
     const queue = this.createQueue()
+    const controls = this.createControls()
     this.sideBar.appendChild(queue)
     this.mainContainer.appendChild(this.grid)
+    this.mainContainer.appendChild(controls)
+
   }
 
   init (state) {

@@ -161,6 +161,11 @@ class Controller {
   bindFunctions () {
     this.view.startGameHandler(this.play)
     this.view.pauseGameHandler(this.pause)
+    this.view.leftKeyHandler(this.moveBlock)
+    this.view.rightKeyHandler(this.moveBlock)
+    this.view.upKeyHandler(this.moveBlock)
+    this.view.downKeyHandler(this.moveBlock)
+    this.view.downKeyUpHandler(this.resetDropSpeed)
     this.view.showHowToHandler(this.showHowTo)
     this.view.showLeaderBoardHandler(this.showLeaderboard)
     this.view.returnToMenuHandler(this.returnToMenu)
