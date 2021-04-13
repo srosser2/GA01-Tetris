@@ -1,28 +1,7 @@
 class GameModel {
   constructor(state){
     this.livePiece = state.livePiece || {}
-    this.fixedBlocks = state.fixedBlocks || [
-      // {
-      //   id: 'bl-1611133257898',
-      //   x: 4,
-      //   y: 19
-      // },
-      // {
-      //   id: 'bl-1611130060808',
-      //   x: 5, 
-      //   y: 19
-      // },
-      // {
-      //   id: 'bl-1611129470307',
-      //   x: 5, 
-      //   y: 20
-      // },
-      // {
-      //   id: 'bl-1611125369982', 
-      //   x: 6, 
-      //   y: 20
-      // }
-    ]
+    this.fixedBlocks = state.fixedBlocks || []
     this.queue = state.queue || []
     this.score = state.score || 0
     this.level = state.level || 0
@@ -47,7 +26,6 @@ class GameModel {
 
   createTetrimino () {
     const tetriminos = [new I(), new J(), new L(), new O(), new S(), new T(), new Z()]
-    // const tetriminos = [new S()]
     return tetriminos[Math.floor(Math.random() * tetriminos.length)]
   }
 
