@@ -200,7 +200,7 @@ The logic for validating movements is handled in the main Model class, and when 
 ```
 
 
-###Triggering Actions
+### Triggering Actions
 
 The Controller has several method that controls game play. 
 
@@ -293,7 +293,7 @@ With the above methods, the Model only needs to call `notifyObservers`, and pass
 
 ```
 
-###Event Handlers
+### Event Handlers
 
 Event listeners are registered with elements in the View, and are passed a callback function. The callback function for each event listener dispatches changes to the Model via the Controller.
 
@@ -382,29 +382,29 @@ initKeyDownEvents (fn) {
 
 ```
 
-##Known Bugs
+## Known Bugs
 
 * There is a minor bug for the game over case, where the final blocks overlap each other, however this doesn't seem to impact score, or ending the game.
 
-##Wins
+## Wins
 
 * The gameplay is smooth and true to the original game.
 * Implementing 'Pause' functionality was more difficult than first anticipated, but the functionality works well now.
 * I am happy with the UI and UX.
 
-##Challenges
+## Challenges
 
 * I spent some time after finishing the project to make the game mobile responsive, and achieved it to some degree, but the user experience isn't as good as the desktop version.
 * I added an animation for clearing rows, but this caused some small issues, so I thought it was better to remove the functionality.
 
-##Future Improvements
+## Future Improvements
 
 * Towards the end of the project, I added a lot of event listeners in the View, which could be refactored pretty easily.
 * It would be good to test on different browsers, screens and operating systems (it was built using a Mac).
 * The mobile experience could be improved, such as positioning the queue of pieces below the main grid, and displaying them horizontally rather than vertically.
 * The game logic mutates variables heavily, so it would be interesting to see how the game would work using more of a functional programming approach.
 
-##Key Learnings
+## Key Learnings
 
 It was interesting to apply the MVC architecture to a game, and I had not used the Observer Pattern before, but I was really impressed at how easy it made updating the View. 
 
